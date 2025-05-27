@@ -1,22 +1,24 @@
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.awt.Dimension;
 
 
-public class GraphicsPanel extends JPanel implements ActionListener, KeyListener {
+public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private boolean[] keyPressed;
     private Player player;
+    private GameFrame gameFrame;
 
 
-    public GraphicsPanel() {
+    public GamePanel() {
         keyPressed = new boolean[128];
         addKeyListener(this);
         player = new Player();
+        gameFrame = new GameFrame();
+    }
+
+    // Getter Methods
+    public int getTileSize() {
+        return gameFrame.tileSize;
     }
 
 

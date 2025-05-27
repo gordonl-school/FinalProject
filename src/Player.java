@@ -13,7 +13,7 @@ public class Player {
         xCoord = 500;
         yCoord = 500;
         try {
-            image = ImageIO.read(new File("src\\Image.png"));
+            image = ImageIO.read(new File("src\\PlayerSprites\\tile000.png"));
         } catch (IOException error) {
             System.out.println(error.getMessage());
         }

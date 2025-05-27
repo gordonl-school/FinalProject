@@ -10,16 +10,21 @@ import java.awt.Dimension;
 
 public class GraphicsPanel extends JPanel implements ActionListener, KeyListener {
     private boolean[] keyPressed;
+    private Player player;
+
 
     public GraphicsPanel() {
         keyPressed = new boolean[128];
         addKeyListener(this);
+        player = new Player();
     }
 
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        g.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), null);
     }
     @Override
     public void actionPerformed(ActionEvent e) {

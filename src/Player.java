@@ -19,6 +19,7 @@ public class Player {
         }
     }
 
+    // Key Interactions
     public void moveRight() {
         xCoord += MOVE_AMOUNT;
     }
@@ -30,5 +31,16 @@ public class Player {
     }
     public void moveDown() {
         yCoord -= MOVE_AMOUNT;
+    }
+
+    // Getter Methods
+    public int getxCoord() {
+        return xCoord;
+    }
+    public int getyCoord() {
+        return yCoord;
+    }
+    public BufferedImage getPlayerImage() {
+        return image;
     }
 }

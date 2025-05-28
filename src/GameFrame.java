@@ -16,7 +16,7 @@ public class GameFrame {
         frame.setSize(screenWidth, screenHeight); // 720 x 960
         frame.setLocationRelativeTo(null);
 
-        GamePanel panel = new GamePanel();
+        GamePanel panel = new GamePanel(this);
 
         frame.add(panel);
         frame.setVisible(true);

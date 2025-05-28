@@ -7,13 +7,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private boolean[] keyPressed;
     private Player player;
     private GameFrame gameFrame;
+    private Timer timer;
 
 
-    public GamePanel() {
+    public GamePanel(GameFrame frame) {
+        timer = new Timer(2, this);
+        timer.start();
         keyPressed = new boolean[128];
         addKeyListener(this);
         player = new Player();
-        gameFrame = new GameFrame();
+        gameFrame = frame;
+        setFocusable(true);
+        requestFocusInWindow();
     }
 
     // Getter Methods
@@ -25,12 +30,23 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         g.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), null);
+        if (keyPressed[65]) {
+            player.moveLeft();
+        }
+        if (keyPressed[68]) {
+            player.moveRight();
+        }
+        if (keyPressed[87]) {
+            player.moveUp();
+        }
+        if (keyPressed[83]) {
+            player.moveDown();
+        }
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-
+        repaint();
     }
 
     @Override

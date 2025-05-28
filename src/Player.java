@@ -8,50 +8,95 @@ public class Player {
     private final int MOVE_AMOUNT = 3;
     private BufferedImage image;
     private Animation animationDown;
-    private Animation animationTop;
-    private Animation animationSide;
-    private Animation currentAnimation;
-    private boolean facingRight;
-    private boolean facingForward;
+    private Animation animationUp;
+    private Animation animationRight;
+    private Animation animationLeft;
+    private Direction direction;
+//    private boolean facingRight;
+//    private boolean facingDown;
     private int xCoord;
     private int yCoord;
 
     public Player() {
-        facingForward = true;
-        facingRight = false;
+//        facingDown = true;
+        direction = Direction.RIGHT;
         xCoord = 500;
         yCoord = 500;
         try {
-            image = ImageIO.read(new File("src\\PlayerSprites\\tile000.png"));
+            image = ImageIO.read(new File("src\\PlayerSprites\\down000.png"));
         } catch (IOException error) {
             System.out.println(error.getMessage());
         }
 
         ArrayList<BufferedImage> images = new ArrayList<>();
-        for (int i = 0; i < 16; i++) {
-            String fileName = "src\\tile00" + i + ".png";
+        for (int i = 0; i < 4; i++) {
+            String fileName = "src\\PlayerSprites\\down00" + i + ".png";
             try {
                 images.add(ImageIO.read(new File(fileName)));
-
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }
         }
-        ///working on adding animatoin
+        animationDown = new Animation(images, 50);
+
+        images = new ArrayList<>();
+        for (int i = 4; i < 8; i++) {
+            String fileName = "src\\PlayerSprites\\left00" + i + ".png";
+            try {
+                images.add(ImageIO.read(new File(fileName)));
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        animationLeft = new Animation(images, 50);
+
+        images = new ArrayList<>();
+        for (int i = 8; i < 10; i++) {
+            String fileName = "src\\PlayerSprites\\right00" + i + ".png";
+            try {
+                images.add(ImageIO.read(new File(fileName)));
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        for (int i = 10; i < 12; i++) {
+            String fileName = "src\\PlayerSprites\\right0" + i + ".png";
+            try {
+                images.add(ImageIO.read(new File(fileName)));
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        animationRight = new Animation(images, 50);
+
+        images = new ArrayList<>();
+        for (int i = 12; i < 16; i++) {
+            String fileName = "src\\PlayerSprites\\up0" + i + ".png";
+            try {
+                images.add(ImageIO.read(new File(fileName)));
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        animationUp = new Animation(images, 50);
     }
 
     // Key Interactions
     public void moveRight() {
+        direction = Direction.RIGHT;
         xCoord += MOVE_AMOUNT;
     }
     public void moveLeft() {
+        direction = Direction.LEFT;
         xCoord -= MOVE_AMOUNT;
     }
     public void moveUp() {
-        yCoord += MOVE_AMOUNT;
+        direction = Direction.UP;
+        yCoord -= MOVE_AMOUNT;
     }
     public void moveDown() {
-        yCoord -= MOVE_AMOUNT;
+        direction = Direction.DOWN;
+        yCoord += MOVE_AMOUNT;
     }
 
     // Getter Methods
@@ -62,6 +107,12 @@ public class Player {
         return yCoord;
     }
     public BufferedImage getPlayerImage() {
-        return image;
+        switch (direction) {
+            case UP -> { return animationUp.getActiveFrame(); }
+            case DOWN -> { return animationDown.getActiveFrame(); }
+            case LEFT -> { return animationLeft.getActiveFrame(); }
+            case RIGHT -> { return animationRight.getActiveFrame(); }
+            default -> { return null; }
+        }
     }
 }

@@ -5,18 +5,25 @@ import java.awt.event.*;
 
 public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private boolean[] keyPressed;
+
+    // Other Classes
     private Player player;
     private GameFrame gameFrame;
     private Timer timer;
+    private TileManager tileM;
 
 
-    public GamePanel(GameFrame frame) {
+    public GamePanel(GameFrame gameFrame) {
         timer = new Timer(2, this);
         timer.start();
         keyPressed = new boolean[128];
         addKeyListener(this);
+
+        // Other Classes
         player = new Player();
-        gameFrame = frame;
+        this.gameFrame = gameFrame;
+        tileM = new TileManager(this);
+
         setFocusable(true);
         requestFocusInWindow();
     }
@@ -30,7 +37,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+
+        Graphics2D g2 = (Graphics2D)g;
+        tileM.draw(g2);
+
         g.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), null);
+
+
         if (keyPressed[65]) {
             player.moveLeft();
         }

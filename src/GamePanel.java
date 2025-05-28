@@ -16,7 +16,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     public GamePanel(GameFrame gameFrame) {
         timer = new Timer(2, this);
         timer.start();
+
+        // Variables
         keyPressed = new boolean[128];
+
+        // Implements
         addKeyListener(this);
 
         // Other Classes
@@ -43,17 +47,16 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
         g.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), null);
 
-
-        if (keyPressed[65]) {
+        if (keyPressed[KeyEvent.VK_A]) {
             player.moveLeft();
         }
-        if (keyPressed[68]) {
+        if (keyPressed[KeyEvent.VK_D]) {
             player.moveRight();
         }
-        if (keyPressed[87]) {
+        if (keyPressed[KeyEvent.VK_W]) {
             player.moveUp();
         }
-        if (keyPressed[83]) {
+        if (keyPressed[KeyEvent.VK_S]) {
             player.moveDown();
         }
     }
@@ -63,9 +66,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-
-    }
+    public void keyTyped(KeyEvent e) {}
 
     @Override
     public void keyPressed(KeyEvent e) {

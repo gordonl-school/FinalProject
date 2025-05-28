@@ -22,12 +22,9 @@ public class Player {
         direction = Direction.RIGHT;
         xCoord = 500;
         yCoord = 500;
-        try {
-            image = ImageIO.read(new File("src\\PlayerSprites\\down000.png"));
-        } catch (IOException error) {
-            System.out.println(error.getMessage());
-        }
 
+
+        // Down Loading Animation
         ArrayList<BufferedImage> images = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             String fileName = "src\\PlayerSprites\\down00" + i + ".png";
@@ -39,6 +36,7 @@ public class Player {
         }
         animationDown = new Animation(images, 50);
 
+        // Left Loading Animation
         images = new ArrayList<>();
         for (int i = 4; i < 8; i++) {
             String fileName = "src\\PlayerSprites\\left00" + i + ".png";
@@ -50,6 +48,7 @@ public class Player {
         }
         animationLeft = new Animation(images, 50);
 
+        // Right Loading Animation
         images = new ArrayList<>();
         for (int i = 8; i < 10; i++) {
             String fileName = "src\\PlayerSprites\\right00" + i + ".png";
@@ -69,6 +68,7 @@ public class Player {
         }
         animationRight = new Animation(images, 50);
 
+        // Up Loading Animation
         images = new ArrayList<>();
         for (int i = 12; i < 16; i++) {
             String fileName = "src\\PlayerSprites\\up0" + i + ".png";

@@ -1,4 +1,5 @@
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -16,12 +17,16 @@ public class Player {
 //    private boolean facingDown;
     private int xCoord;
     private int yCoord;
+    //rectangle for checking collision
+    public Rectangle solidArea;
+    public boolean collisionOn = false;
 
     public Player() {
 //        facingDown = true;
         direction = Direction.RIGHT;
         xCoord = 500;
         yCoord = 500;
+        solidArea = new Rectangle(8, 16, 20, 30);
 
 
         // Down Loading Animation

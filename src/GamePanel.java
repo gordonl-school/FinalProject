@@ -11,6 +11,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private GameFrame gameFrame;
     private Timer timer;
     private TileManager tileM;
+    private CollisionChecker checker;
 
 
     public GamePanel(GameFrame gameFrame) {
@@ -24,6 +25,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         addKeyListener(this);
 
         // Other Classes
+
+        checker = new CollisionChecker(this);
         player = new Player();
         this.gameFrame = gameFrame;
         tileM = new TileManager(this);
@@ -59,6 +62,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         if (keyPressed[KeyEvent.VK_S]) {
             player.moveDown();
         }
+        player.collisionOn = false;
+        checker.checkTile(player);
     }
     @Override
     public void actionPerformed(ActionEvent e) {

@@ -19,6 +19,7 @@ public class TileManager {
             // Tree
             tile[0] = new Tile();
             tile[0].image = ImageIO.read(new File("src/Tiles/Tree.png"));
+            tile[0].collision = true;
 
             // Grass Block
             tile[1] = new Tile();

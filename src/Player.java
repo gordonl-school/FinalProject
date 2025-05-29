@@ -27,7 +27,7 @@ public class Player {
         // Down Loading Animation
         ArrayList<BufferedImage> images = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            String fileName = "src\\PlayerSprites\\down00" + i + ".png";
+            String fileName = "src/PlayerSprites/down00" + i + ".png";
             try {
                 images.add(ImageIO.read(new File(fileName)));
             } catch (IOException e) {
@@ -39,7 +39,7 @@ public class Player {
         // Left Loading Animation
         images = new ArrayList<>();
         for (int i = 4; i < 8; i++) {
-            String fileName = "src\\PlayerSprites\\left00" + i + ".png";
+            String fileName = "src/PlayerSprites/left00" + i + ".png";
             try {
                 images.add(ImageIO.read(new File(fileName)));
             } catch (IOException e) {
@@ -51,7 +51,7 @@ public class Player {
         // Right Loading Animation
         images = new ArrayList<>();
         for (int i = 8; i < 10; i++) {
-            String fileName = "src\\PlayerSprites\\right00" + i + ".png";
+            String fileName = "src/PlayerSprites/right00" + i + ".png";
             try {
                 images.add(ImageIO.read(new File(fileName)));
             } catch (IOException e) {
@@ -59,7 +59,7 @@ public class Player {
             }
         }
         for (int i = 10; i < 12; i++) {
-            String fileName = "src\\PlayerSprites\\right0" + i + ".png";
+            String fileName = "src/PlayerSprites/right0" + i + ".png";
             try {
                 images.add(ImageIO.read(new File(fileName)));
             } catch (IOException e) {
@@ -71,7 +71,7 @@ public class Player {
         // Up Loading Animation
         images = new ArrayList<>();
         for (int i = 12; i < 16; i++) {
-            String fileName = "src\\PlayerSprites\\up0" + i + ".png";
+            String fileName = "src/PlayerSprites/up0" + i + ".png";
             try {
                 images.add(ImageIO.read(new File(fileName)));
             } catch (IOException e) {

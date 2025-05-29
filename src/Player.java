@@ -23,7 +23,7 @@ public class Player {
 
     public Player() {
 //        facingDown = true;
-        direction = Direction.RIGHT;
+        direction = Direction.DOWN;
         xCoord = 500;
         yCoord = 500;
         solidArea = new Rectangle(8, 16, 20, 30);

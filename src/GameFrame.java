@@ -5,10 +5,15 @@ public class GameFrame {
     final int scale = 3;
 
     final int tileSize = originalTileSize * scale;
-    final int maxScreenCol = 15;
+    final int maxScreenCol = 16;
     final int maxScreenRow = 17;
     final int screenHeight = tileSize * maxScreenCol;
     final int screenWidth = tileSize * maxScreenRow;
+
+    final int maxWorldCol = 30;
+    final int maxWorldRow = 30;
+    final int worldHeight = tileSize * maxWorldCol;
+    final int worldWidth = tileSize * maxWorldRow;
 
     public GameFrame() {
         JFrame frame = new JFrame("Brotato Clone");

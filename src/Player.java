@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Player {
+    // Other Classes
+    GameFrame gameFrame;
+
     private final int MOVE_AMOUNT = 3;
     private BufferedImage image;
     private Animation animationDown;
@@ -13,21 +16,26 @@ public class Player {
     private Animation animationRight;
     private Animation animationLeft;
     private Direction direction;
-//    private boolean facingRight;
-//    private boolean facingDown;
-    private int xCoord;
-    private int yCoord;
+
+    // Camera + World Movement
+    private int worldX;
+    private int worldY;
     //rectangle for checking collision
     public Rectangle solidArea;
     public boolean collisionOn = false;
 
-    public Player() {
+    private final int screenX;
+    private final int screenY;
+
+    public Player(GameFrame gameFrame) {
 //        facingDown = true;
         direction = Direction.DOWN;
-        xCoord = 500;
-        yCoord = 500;
+        worldX = 393;
+        worldY = 324;
         solidArea = new Rectangle(8, 16, 20, 30);
 
+        screenX = gameFrame.screenWidth/2 - (gameFrame.tileSize/2);
+        screenY = gameFrame.screenHeight/2 - (gameFrame.tileSize/2);
 
         // Down Loading Animation
         ArrayList<BufferedImage> images = new ArrayList<>();
@@ -89,28 +97,35 @@ public class Player {
     // Key Interactions
     public void moveRight() {
         direction = Direction.RIGHT;
-        xCoord += MOVE_AMOUNT;
+        worldX += MOVE_AMOUNT;
     }
     public void moveLeft() {
         direction = Direction.LEFT;
-        xCoord -= MOVE_AMOUNT;
+        worldX -= MOVE_AMOUNT;
     }
     public void moveUp() {
         direction = Direction.UP;
-        yCoord -= MOVE_AMOUNT;
+        worldY -= MOVE_AMOUNT;
     }
     public void moveDown() {
         direction = Direction.DOWN;
-        yCoord += MOVE_AMOUNT;
+        worldY += MOVE_AMOUNT;
     }
+
 
     // Getter Methods
     public int getxCoord() {
-        return xCoord;
+        return worldX;
     }
     public int getyCoord() {
-        return yCoord;
+        return worldY;
     }
+
+    public int getScreenX() {return screenX;}
+    public int getScreenY() {return screenY;}
+    public int getWorldX() {return worldX;}
+    public int getWorldY() {return worldY;}
+
     public BufferedImage getPlayerImage() {
         switch (direction) {
             case UP -> { return animationUp.getActiveFrame(); }

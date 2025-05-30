@@ -27,9 +27,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         // Other Classes
 
         checker = new CollisionChecker(this);
-        player = new Player();
+        player = new Player(gameFrame);
         this.gameFrame = gameFrame;
-        tileM = new TileManager(this);
+        tileM = new TileManager(this, gameFrame, player);
 
         setFocusable(true);
         requestFocusInWindow();
@@ -48,19 +48,25 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         Graphics2D g2 = (Graphics2D)g;
         tileM.draw(g2);
 
-        g.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), null);
-
+        g2.drawImage(player.getPlayerImage(), player.getScreenX(), player.getScreenY(), gameFrame.tileSize, gameFrame.tileSize, null);
+//        g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), null);
+        System.out.println("X: " + player.getxCoord() + "\nY: " + player.getyCoord());
+        // Key interactions
         if (keyPressed[KeyEvent.VK_A]) {
             player.moveLeft();
+            tileM.moveRight();
         }
         if (keyPressed[KeyEvent.VK_D]) {
             player.moveRight();
+            tileM.moveLeft();
         }
         if (keyPressed[KeyEvent.VK_W]) {
             player.moveUp();
+            tileM.moveUp();
         }
         if (keyPressed[KeyEvent.VK_S]) {
             player.moveDown();
+            tileM.moveDown();
         }
         player.collisionOn = false;
         checker.checkTile(player);

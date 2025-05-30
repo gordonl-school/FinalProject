@@ -8,6 +8,8 @@ public class Animation implements ActionListener {
     private ArrayList<BufferedImage> frames;
     private Timer timer;
     private int currentFrame;
+    private boolean paused;
+
 
     public Animation(ArrayList<BufferedImage> frames, int delay) {
         this.frames = frames;
@@ -19,6 +21,14 @@ public class Animation implements ActionListener {
     public BufferedImage getActiveFrame() {
         return frames.get(currentFrame);
     }
+
+    public void start() {
+        timer.start();
+    }
+    public void stop() {
+        timer.stop();
+    }
+
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() instanceof Timer) {

@@ -16,7 +16,6 @@ public class Player {
     private Animation animationRight;
     private Animation animationLeft;
     private Direction direction;
-
     // Camera + World Movement
     private int worldX;
     private int worldY;

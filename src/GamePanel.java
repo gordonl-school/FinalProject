@@ -50,7 +50,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
         g2.drawImage(player.getPlayerImage(), player.getScreenX(), player.getScreenY(), gameFrame.tileSize, gameFrame.tileSize, null);
 //        g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), null);
-        System.out.println("X: " + player.getxCoord() + "\nY: " + player.getyCoord());
+//        System.out.println("X: " + player.getxCoord() + "\nY: " + player.getyCoord());
         // Key interactions
         if (keyPressed[KeyEvent.VK_A]) {
             player.moveLeft();

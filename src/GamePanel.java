@@ -26,7 +26,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         addKeyListener(this);
 
         // Other Classes
-        enemy = new Enemy();
+        enemy = new Enemy(gameFrame);
         checker = new CollisionChecker(this);
 
         player = new Player(gameFrame, this, enemy);

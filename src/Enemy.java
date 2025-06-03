@@ -3,15 +3,20 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class Enemy {
+    // Classes
+    GameFrame gameFrame;
+
+    // Animation + Direction
+    private Animation animation;
+    private boolean facingRight;
+    private Direction direction;
+
+    // Enemy Stats
+    private final int MOVE_AMOUNT = 3;
+
     int attack;
     int health;
 
@@ -20,7 +25,7 @@ public class Enemy {
 
     BufferedImage enemy1;
 
-    public Enemy() {
+    public Enemy(GameFrame gameFrame) {
         // Cords
         xCordE = 100;
         yCordE = 100;
@@ -29,32 +34,10 @@ public class Enemy {
         attack = 5;
         health = 100;
 
-        try {
-            enemy1 = ImageIO.read(new File("src\\EnemySprites//Grass.png"));
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public Rectangle enemyRect() {
-        int imageHeight = enemy1.getHeight();
-        int imageWidth = enemy1.getWidth();
-        Rectangle rect = new Rectangle(xCordE, yCordE, imageWidth, imageHeight);
-        return rect;
-    }
-
-    GameFrame gameFrame;
-
-    private final int MOVE_AMOUNT = 3;
-    private BufferedImage image;
-    private Animation animation;
-    private boolean facingRight;
-    private Direction direction;
-
-    public Enemy(GameFrame gameFrame) {
         facingRight = true;
+
         try {
-            image = ImageIO.read(new File("src/Enemy/enemy000.png"));
+            enemy1 = ImageIO.read(new File("src/Enemy/enemy000.png"));
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -84,5 +67,12 @@ public class Enemy {
             case RIGHT -> { return animation.getActiveFrame(); }
             default -> { return null; }
         }
+    }
+
+    public Rectangle enemyRect() {
+        int imageHeight = enemy1.getHeight();
+        int imageWidth = enemy1.getWidth();
+        Rectangle rect = new Rectangle(xCordE, yCordE, imageWidth, imageHeight);
+        return rect;
     }
 }

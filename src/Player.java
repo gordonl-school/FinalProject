@@ -149,7 +149,6 @@ public class Player {
 
     public Rectangle playerRect() {
         // Calculations
-
         int imageHeight = getPlayerImage().getHeight();
         int imageWidth = getPlayerImage().getWidth();
         Rectangle rect = new Rectangle(xCoord, yCoord, imageWidth, imageHeight);

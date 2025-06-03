@@ -9,18 +9,26 @@ public class TileManager {
     GamePanel gamePanel;
     GameFrame gameFrame;
     Player player;
+    Enemy enemy;
+
     Tile[] tile;
     int[][] stoneMap;
     int x;
     int y;
 
-    public TileManager(GamePanel gamePanel, GameFrame gameFrame, Player player) {
+    int xPos;
+    int yPos;
+
+    public TileManager(GamePanel gamePanel, GameFrame gameFrame, Player player, Enemy enemy) {
         this.gamePanel = gamePanel;
         this.gameFrame = gameFrame;
         this.player = player;
+        this.enemy = enemy;
+
         tile = new Tile[4];
-        stoneMap = new int[gameFrame.maxWorldCol][gameFrame.maxWorldCol];
+        stoneMap = new int[gameFrame.maxScreenRow][gameFrame.maxScreenCol];
         getTileImage();
+        generateRandomStoneMap();
 //        x = -gameFrame.tileSize * 5;  // -240
 //        y = -gameFrame.tileSize * 5;  // -240
         x = 0;
@@ -29,8 +37,8 @@ public class TileManager {
 
     public void generateRandomStoneMap() {
         Random rand = new Random();
-        for (int r = 0; r < gameFrame.maxWorldCol; r++) {
-            for (int c = 0; c < gameFrame.maxWorldCol; c++) {
+        for (int r = 0; r < gameFrame.maxScreenRow; r++) {
+            for (int c = 0; c < gameFrame.maxScreenCol; c++) {
                 if (rand.nextBoolean()) {
                     stoneMap[r][c] = 0;
                 } else {
@@ -63,29 +71,33 @@ public class TileManager {
 
     public void draw(Graphics2D graphics2D) {
         int tileSize = gameFrame.tileSize;
-        Random rand = new Random();
-
-        // Extraneous code for now
-//        int worldX = gameFrame.maxWorldCol * tileSize;
-//        int worldY = gameFrame.maxWorldRow * tileSize;
-//        int screenX = worldX - player.getWorldX() + player.getScreenX();
-//        int screenY = worldY - player.getWorldY() + player.getScreenY();
-
         // Generating all the grass
-        for (int r = 0; r < gameFrame.maxWorldCol ; r++) {
-            int xPos = x + r * gameFrame.tileSize;
-            for (int c = 0; c < gameFrame.maxWorldCol; c++) {
-                int yPos = y + c * gameFrame.tileSize;
-
+//        for (int r = 0; r < gameFrame.maxWorldCol ; r++) {
+//            xPos = x + r * gameFrame.tileSize;
+//            for (int c = 0; c < gameFrame.maxWorldCol; c++) {
+//                yPos = y + c * gameFrame.tileSize;
+//
+//                Tile stoneTile;
+//                if (stoneMap[r][c] == 0) {
+//                    stoneTile = tile[2];
+//                } else {
+//                    stoneTile = tile[3];
+//                }
+//                graphics2D.drawImage(stoneTile.image, xPos, yPos, tileSize, tileSize, null);
+//            }
+//        }
+        for (int r = 0; r < gameFrame.maxScreenRow ; r++) {
+            for (int c = 0; c < gameFrame.maxScreenCol; c++) {
                 Tile stoneTile;
                 if (stoneMap[r][c] == 0) {
                     stoneTile = tile[2];
                 } else {
                     stoneTile = tile[3];
                 }
-                graphics2D.drawImage(stoneTile.image, xPos, yPos, tileSize, tileSize, null);
+                graphics2D.drawImage(stoneTile.image, r * tileSize, c * tileSize, tileSize, tileSize, null);
             }
         }
+
 
 
 
@@ -98,13 +110,19 @@ public class TileManager {
 //        }
     }
 
+    public int getxPos() {
+        return y;
+    }
+
+    public int getyPos() {
+        return x;
+    }
+
     public void moveRight() {
         x += 3;
-
     }
     public void moveLeft() {
         x -= 3;
-
     }
     public void moveDown() {
         y -= 3;

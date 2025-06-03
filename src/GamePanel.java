@@ -12,6 +12,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private Timer timer;
     private TileManager tileM;
     private CollisionChecker checker;
+    private Enemy enemy;
 
 
     public GamePanel(GameFrame gameFrame) {
@@ -25,11 +26,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         addKeyListener(this);
 
         // Other Classes
-
+        enemy = new Enemy();
         checker = new CollisionChecker(this);
-        player = new Player(gameFrame);
+
+        player = new Player(gameFrame, this, enemy);
+        tileM = new TileManager(this, gameFrame, player, enemy);
+
         this.gameFrame = gameFrame;
-        tileM = new TileManager(this, gameFrame, player);
 
         setFocusable(true);
         requestFocusInWindow();
@@ -48,25 +51,31 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         Graphics2D g2 = (Graphics2D)g;
         tileM.draw(g2);
 
-        g2.drawImage(player.getPlayerImage(), player.getScreenX(), player.getScreenY(), gameFrame.tileSize, gameFrame.tileSize, null);
-//        g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), null);
-//        System.out.println("X: " + player.getxCoord() + "\nY: " + player.getyCoord());
+        g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
+        g.drawImage(enemy.enemy1, enemy.xCordE, enemy.yCordE, null);
+
+
+        g.setFont(new Font("Courier New", Font.BOLD, 24));
+        g.drawString("Health: " + player.health + "/" + player.maxHealth, 5,20);
+
+        if (player.playerRect().intersects(enemy.enemyRect())) {
+            player.health -= 5;
+            System.out.println("Touched");
+        }
+
+
         // Key interactions
         if (keyPressed[KeyEvent.VK_A]) {
             player.moveLeft();
-            tileM.moveRight();
         }
         if (keyPressed[KeyEvent.VK_D]) {
             player.moveRight();
-            tileM.moveLeft();
         }
         if (keyPressed[KeyEvent.VK_W]) {
             player.moveUp();
-            tileM.moveUp();
         }
         if (keyPressed[KeyEvent.VK_S]) {
             player.moveDown();
-            tileM.moveDown();
         }
         player.collisionOn = false;
         checker.checkTile(player);

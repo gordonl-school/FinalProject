@@ -8,6 +8,7 @@ import java.util.ArrayList;
 public class Player {
     // Other Classes
     GameFrame gameFrame;
+    TileManager tileManager;
 
     private final int MOVE_AMOUNT = 3;
     private BufferedImage image;
@@ -18,24 +19,34 @@ public class Player {
     private Direction direction;
 
     // Camera + World Movement
-    private int worldX;
-    private int worldY;
-    //rectangle for checking collision
+    private int xCoord;
+    private int yCoord;
+
+    // Eectangle for checking collision
     public Rectangle solidArea;
     public boolean collisionOn = false;
 
-    private final int screenX;
-    private final int screenY;
+//    private final int screenX;
+//    private final int screenY;
 
-    public Player(GameFrame gameFrame) {
-//        facingDown = true;
+    // Player Stats
+    int health;
+    int maxHealth;
+
+    public Player(GameFrame gameFrame, GamePanel gamePanel, Enemy enemy) {
+        tileManager = new TileManager(gamePanel, gameFrame, this, enemy);
+        // Player Stats
+        health = 100;
+        maxHealth = 100;
+
         direction = Direction.DOWN;
-        worldX = 393;
-        worldY = 324;
-        solidArea = new Rectangle(8, 16, 20, 30);
-
-        screenX = gameFrame.screenWidth/2 - (gameFrame.tileSize/2);
-        screenY = gameFrame.screenHeight/2 - (gameFrame.tileSize/2);
+        xCoord = 393;
+        yCoord = 324;
+//        solidArea = new Rectangle(8, 16, 20, 30);
+//
+//        screenX = gameFrame.screenWidth/2 - (gameFrame.tileSize/2);
+//        screenY = gameFrame.screenHeight/2 - (gameFrame.tileSize/2);
+//        this.tileManager = tileManager;
 
         // Down Loading Animation
         ArrayList<BufferedImage> images = new ArrayList<>();
@@ -97,34 +108,35 @@ public class Player {
     // Key Interactions
     public void moveRight() {
         direction = Direction.RIGHT;
-        worldX += MOVE_AMOUNT;
+        xCoord += MOVE_AMOUNT;
     }
     public void moveLeft() {
         direction = Direction.LEFT;
-        worldX -= MOVE_AMOUNT;
+        xCoord -= MOVE_AMOUNT;
     }
     public void moveUp() {
         direction = Direction.UP;
-        worldY -= MOVE_AMOUNT;
+        yCoord -= MOVE_AMOUNT;
     }
     public void moveDown() {
         direction = Direction.DOWN;
-        worldY += MOVE_AMOUNT;
+        yCoord += MOVE_AMOUNT;
     }
 
 
     // Getter Methods
     public int getxCoord() {
-        return worldX;
+        return xCoord;
     }
     public int getyCoord() {
-        return worldY;
+        return yCoord;
     }
 
-    public int getScreenX() {return screenX;}
-    public int getScreenY() {return screenY;}
-    public int getWorldX() {return worldX;}
-    public int getWorldY() {return worldY;}
+//    public int getScreenX() {return screenX;}
+//    public int getScreenY() {return screenY;}
+
+
+    // Other important methods
 
     public BufferedImage getPlayerImage() {
         switch (direction) {
@@ -134,5 +146,15 @@ public class Player {
             case RIGHT -> { return animationRight.getActiveFrame(); }
             default -> { return null; }
         }
+    }
+
+    public Rectangle playerRect() {
+        // Calculations
+
+        int imageHeight = getPlayerImage().getHeight();
+        int imageWidth = getPlayerImage().getWidth();
+        Rectangle rect = new Rectangle(xCoord, yCoord, imageWidth, imageHeight);
+        System.out.println("player: " + rect);
+        return rect;
     }
 }

@@ -70,7 +70,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
         g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
         g.drawImage(enemy.enemy1, enemy.xCordE, enemy.yCordE, null);
-
+        g.drawImage(player.gun, player.gunCoordX, player.gunCoordY, null);
 
         g.setFont(new Font("Courier New", Font.BOLD, 24));
         g.drawString("Health: " + player.health + "/" + player.maxHealth, 5,20);

@@ -18,11 +18,15 @@ public class Player {
     private Animation animationLeft;
     private Direction direction;
 
+    // Gun
+    BufferedImage gun;
+    int gunCoordX;
+    int gunCoordY;
+
+    // Player Stats
     private int xCoord;
     private int yCoord;
 
-    private BufferedImage gun;
-    // Player Stats
     static boolean debounce;
     int health;
     int maxHealth;
@@ -37,6 +41,9 @@ public class Player {
         direction = Direction.DOWN;
         xCoord = 393;
         yCoord = 324;
+
+        gunCoordX = 370;
+        gunCoordY = 340;
 
         try {
             gun = ImageIO.read(new File("src/OtherSprites/Gun.png"));
@@ -105,18 +112,22 @@ public class Player {
     public void moveRight() {
         direction = Direction.RIGHT;
         xCoord += MOVE_AMOUNT;
+        gunCoordX += MOVE_AMOUNT;
     }
     public void moveLeft() {
         direction = Direction.LEFT;
         xCoord -= MOVE_AMOUNT;
+        gunCoordX -= MOVE_AMOUNT;
     }
     public void moveUp() {
         direction = Direction.UP;
         yCoord -= MOVE_AMOUNT;
+        gunCoordY -= MOVE_AMOUNT;
     }
     public void moveDown() {
         direction = Direction.DOWN;
         yCoord += MOVE_AMOUNT;
+        gunCoordY += MOVE_AMOUNT;
     }
 
 

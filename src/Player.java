@@ -10,7 +10,7 @@ public class Player {
     GameFrame gameFrame;
     TileManager tileManager;
 
-    private final int MOVE_AMOUNT = 3;
+    private final int MOVE_AMOUNT = 4;
     private BufferedImage image;
     private Animation animationDown;
     private Animation animationUp;

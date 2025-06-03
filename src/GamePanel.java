@@ -27,6 +27,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     private TileManager tileM;
     private CollisionChecker checker;
     private Enemy enemy;
+    private Enemy enemy1;
 
 
     public GamePanel(GameFrame gameFrame) {
@@ -41,11 +42,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         addMouseMotionListener(this);
 
         // Other Classes
-        enemy = new Enemy(gameFrame);
         checker = new CollisionChecker(this);
 
         player = new Player(gameFrame, this, enemy);
         tileM = new TileManager(this, gameFrame, player, enemy);
+
+        enemy = new Enemy(player);
+        enemy1 = new Enemy(player);
+        enemy1.setxCordE(700);
 
         this.gameFrame = gameFrame;
 
@@ -59,6 +63,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     }
 
 
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -69,8 +74,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         tileM.draw(g2);
 
         g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
-        g.drawImage(enemy.enemy1, enemy.xCordE, enemy.yCordE, null);
+//        g.drawImage(enemy.enemy1, enemy.xCordE, enemy.yCordE, null);
         g.drawImage(player.gun, player.gunCoordX, player.gunCoordY, null);
+
+        g.drawImage(enemy.getEnemyImage(), enemy.getxCordE(), enemy.getyCordE(), gameFrame.tileSize, gameFrame.tileSize, null);
 
         g.setFont(new Font("Courier New", Font.BOLD, 24));
         g.drawString("Health: " + player.health + "/" + player.maxHealth, 5,20);
@@ -84,6 +91,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         }
 
 
+        enemy.move();
         // Key interactions
         if (keyPressed[KeyEvent.VK_A]) {
             player.moveLeft();

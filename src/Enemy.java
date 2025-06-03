@@ -15,7 +15,7 @@ public class Enemy {
     private Direction direction;
 
     // Enemy Stats
-    private final int MOVE_AMOUNT = 3;
+    private final int SPEED = 2;
 
     int attack;
     int health;
@@ -23,9 +23,11 @@ public class Enemy {
     int xCordE;
     int yCordE;
 
+    Player playerReference;
+
     BufferedImage enemy1;
 
-    public Enemy(GameFrame gameFrame) {
+    public Enemy(Player player) {
         // Cords
         xCordE = 100;
         yCordE = 100;
@@ -34,7 +36,8 @@ public class Enemy {
         attack = 5;
         health = 100;
 
-        facingRight = true;
+        playerReference = player;
+        direction = Direction.RIGHT;
 
         try {
             enemy1 = ImageIO.read(new File("src/Enemy/enemy000.png"));
@@ -61,7 +64,46 @@ public class Enemy {
         direction = Direction.LEFT;
     }
 
-    public BufferedImage getPlayerImage() {
+    public int getxCordE() {
+        if (direction == Direction.RIGHT) {
+            return xCordE;
+        } else {
+            return (xCordE + (getEnemyImage().getWidth()));
+        }
+    }
+
+    public int getHeight() {
+        return getEnemyImage().getHeight();
+    }
+
+    public int getWidth() {
+        if (direction == Direction.RIGHT) {
+            return getEnemyImage().getWidth();
+        } else {
+            return getEnemyImage().getWidth() * -1;
+        }
+    }
+
+    public int getyCordE() {
+        return yCordE;
+    }
+
+    public void setxCordE(int xCordE) {
+        this.xCordE = xCordE;
+    }
+
+    public void setyCordE(int yCordE) {
+        this.yCordE = yCordE;
+    }
+
+    public void move() {
+        //Written by Supreme Leader Matthew Rotondi
+        double angle = Math.atan2((playerReference.getyCoord() - yCordE), (playerReference.getxCoord() - xCordE));
+        xCordE += Math.round(SPEED * Math.cos(angle));
+        yCordE += Math.round(SPEED * Math.sin(angle));
+    }
+
+    public BufferedImage getEnemyImage() {
         switch (direction) {
             case LEFT -> { return animation.getActiveFrame(); }
             case RIGHT -> { return animation.getActiveFrame(); }

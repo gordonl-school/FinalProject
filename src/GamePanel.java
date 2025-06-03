@@ -2,8 +2,22 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+class Sleeper implements Runnable {
+    @Override
+    public void run() {
+        try {
+            System.out.println("Sleeper thread is starting");
+            Player.debounce = true;
+            Thread.sleep(1000);
+            Player.debounce = false;
+            System.out.println("Sleeper thread has finished sleeping");
+        } catch (InterruptedException e) {
+            System.out.println("Sleeper thread was interrupted");
+        }
+    }
+}
 
-public class GamePanel extends JPanel implements ActionListener, KeyListener {
+public class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMotionListener {
     private boolean[] keyPressed;
 
     // Other Classes
@@ -24,6 +38,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
         // Implements
         addKeyListener(this);
+        addMouseMotionListener(this);
 
         // Other Classes
         enemy = new Enemy(gameFrame);
@@ -48,6 +63,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        Thread sleeperThread = new Thread(new Sleeper());
+
         Graphics2D g2 = (Graphics2D)g;
         tileM.draw(g2);
 
@@ -59,8 +76,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         g.drawString("Health: " + player.health + "/" + player.maxHealth, 5,20);
 
         if (player.playerRect().intersects(enemy.enemyRect())) {
-            player.health -= 5;
-            System.out.println("Touched");
+            if (!Player.debounce) {
+                player.health -= enemy.attack;
+                System.out.println("Touched");
+                sleeperThread.start();
+            }
         }
 
 
@@ -77,7 +97,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         if (keyPressed[KeyEvent.VK_S]) {
             player.moveDown();
         }
-        player.collisionOn = false;
         checker.checkTile(player);
     }
     @Override
@@ -96,5 +115,17 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
         keyPressed[e.getKeyCode()] = false;
+    }
+
+
+    // MOUSE MOTION METHODS
+    @Override
+    public void mouseDragged(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+
     }
 }

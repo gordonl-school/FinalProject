@@ -17,22 +17,18 @@ public class Player {
     private Animation animationRight;
     private Animation animationLeft;
     private Direction direction;
-    // Camera + World Movement
+
     private int xCoord;
     private int yCoord;
 
-    // Eectangle for checking collision
-    public Rectangle solidArea;
-    public boolean collisionOn = false;
-
-//    private final int screenX;
-//    private final int screenY;
-
+    private BufferedImage gun;
     // Player Stats
+    static boolean debounce;
     int health;
     int maxHealth;
 
     public Player(GameFrame gameFrame, GamePanel gamePanel, Enemy enemy) {
+        debounce = false;
         tileManager = new TileManager(gamePanel, gameFrame, this, enemy);
         // Player Stats
         health = 100;
@@ -41,11 +37,12 @@ public class Player {
         direction = Direction.DOWN;
         xCoord = 393;
         yCoord = 324;
-//        solidArea = new Rectangle(8, 16, 20, 30);
-//
-//        screenX = gameFrame.screenWidth/2 - (gameFrame.tileSize/2);
-//        screenY = gameFrame.screenHeight/2 - (gameFrame.tileSize/2);
-//        this.tileManager = tileManager;
+
+        try {
+            gun = ImageIO.read(new File("src/OtherSprites/Gun.png"));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
 
         // Down Loading Animation
         ArrayList<BufferedImage> images = new ArrayList<>();
@@ -137,6 +134,11 @@ public class Player {
 
     // Other important methods
 
+//    public void damageTaken(int damage) throws InterruptedException {
+//        health -= damage;
+//        Thread.sleep(1000);
+//    }
+
     public BufferedImage getPlayerImage() {
         switch (direction) {
             case UP -> { return animationUp.getActiveFrame(); }
@@ -152,7 +154,6 @@ public class Player {
         int imageHeight = getPlayerImage().getHeight();
         int imageWidth = getPlayerImage().getWidth();
         Rectangle rect = new Rectangle(xCoord, yCoord, imageWidth, imageHeight);
-        System.out.println("player: " + rect);
         return rect;
     }
 }

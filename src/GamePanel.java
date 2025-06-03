@@ -94,16 +94,24 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         enemy.move();
         // Key interactions
         if (keyPressed[KeyEvent.VK_A]) {
-            player.moveLeft();
+            if (player.getxCoord() > 0) {
+                player.moveLeft();
+            }
         }
         if (keyPressed[KeyEvent.VK_D]) {
-            player.moveRight();
+            if (player.getxCoord() < gameFrame.screenWidth - 48) {
+                player.moveRight();
+            }
         }
         if (keyPressed[KeyEvent.VK_W]) {
-            player.moveUp();
+            if (player.getyCoord() > 0) {
+                player.moveUp();
+            }
         }
         if (keyPressed[KeyEvent.VK_S]) {
-            player.moveDown();
+            if (player.getyCoord() < gameFrame.screenHeight - 87) {
+                player.moveDown();
+            }
         }
         checker.checkTile(player);
     }

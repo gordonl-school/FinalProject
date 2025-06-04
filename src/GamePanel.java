@@ -52,8 +52,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         tileM = new TileManager(this, gameFrame, player, enemy);
 
         enemy = new Enemy(player);
-        enemy1 = new Enemy(player);
-        enemy1.setxCordE(700);
 
         this.gameFrame = gameFrame;
 
@@ -81,7 +79,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         g.drawImage(weapon.gun, weapon.getGunCoordX(), weapon.getGunCoordY(), null);
 
 //        g.drawImage(enemy.enemy1, enemy.xCordE, enemy.yCordE, null);
-        g.drawImage(enemy.getEnemyImage(), enemy.getxCordE(), enemy.getyCordE(), gameFrame.tileSize, gameFrame.tileSize, null);
+//        g.drawImage(enemy.getEnemyImage(), enemy.getxCordE(), enemy.getyCordE(), gameFrame.tileSize, gameFrame.tileSize, null);
+        if (enemy.getxCordE() < player.getxCoord()) {
+            enemy.faceRight();
+            g.drawImage(enemy.getEnemyImage(), enemy.getxCordE(), enemy.getyCordE(), enemy.getWidth(), gameFrame.tileSize, null);
+        } else {
+            enemy.faceLeft();
+            g.drawImage(enemy.getEnemyImage(), enemy.getxCordE(), enemy.getyCordE(), enemy.getWidth(), gameFrame.tileSize, null);
+        }
 
 
         // Text

@@ -99,8 +99,8 @@ public class Enemy {
     public void move() {
         //Written by Supreme Leader Matthew Rotondi
         double angle = Math.atan2((playerReference.getyCoord() - yCordE), (playerReference.getxCoord() - xCordE));
-        xCordE += Math.round(SPEED * Math.cos(angle));
-        yCordE += Math.round(SPEED * Math.sin(angle));
+        xCordE += (int) Math.round(SPEED * Math.cos(angle));
+        yCordE += (int) Math.round(SPEED * Math.sin(angle));
     }
 
     public BufferedImage getEnemyImage() {

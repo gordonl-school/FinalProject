@@ -9,6 +9,7 @@ public class Player {
     // Other Classes
     GameFrame gameFrame;
     TileManager tileManager;
+    Weapon weapon;
 
     private final int MOVE_AMOUNT = 4;
     private BufferedImage image;
@@ -18,22 +19,16 @@ public class Player {
     private Animation animationLeft;
     private Direction direction;
 
-    // Gun
-    BufferedImage gun;
-    int gunCoordX;
-    int gunCoordY;
-
     // Player Stats
     private int xCoord;
     private int yCoord;
 
-    static boolean debounce;
     int health;
     int maxHealth;
 
-    public Player(GameFrame gameFrame, GamePanel gamePanel, Enemy enemy) {
-        debounce = false;
+    public Player(GameFrame gameFrame, GamePanel gamePanel, Enemy enemy, Weapon weapon) {
         tileManager = new TileManager(gamePanel, gameFrame, this, enemy);
+        this.weapon = weapon;
         // Player Stats
         health = 100;
         maxHealth = 100;
@@ -41,15 +36,6 @@ public class Player {
         direction = Direction.DOWN;
         xCoord = 393;
         yCoord = 324;
-
-        gunCoordX = 370;
-        gunCoordY = 340;
-
-        try {
-            gun = ImageIO.read(new File("src/OtherSprites/Gun.png"));
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
 
         // Down Loading Animation
         ArrayList<BufferedImage> images = new ArrayList<>();
@@ -112,22 +98,25 @@ public class Player {
     public void moveRight() {
         direction = Direction.RIGHT;
         xCoord += MOVE_AMOUNT;
-        gunCoordX += MOVE_AMOUNT;
+        weapon.gunCoordX += MOVE_AMOUNT;
     }
     public void moveLeft() {
         direction = Direction.LEFT;
         xCoord -= MOVE_AMOUNT;
-        gunCoordX -= MOVE_AMOUNT;
+        weapon.gunCoordX -= MOVE_AMOUNT;
+
     }
     public void moveUp() {
         direction = Direction.UP;
         yCoord -= MOVE_AMOUNT;
-        gunCoordY -= MOVE_AMOUNT;
+        weapon.gunCoordY -= MOVE_AMOUNT;
+
     }
     public void moveDown() {
         direction = Direction.DOWN;
         yCoord += MOVE_AMOUNT;
-        gunCoordY += MOVE_AMOUNT;
+        weapon.gunCoordY += MOVE_AMOUNT;
+
     }
 
 

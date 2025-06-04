@@ -115,6 +115,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
             enemy.killEnemy();
         }
 
+        if (enemy.getxCordE() < player.getxCoord()) {
+            enemy.faceRight();
+            g.drawImage(enemy.getEnemyImage(), enemy.getxCordE(), enemy.getyCordE(), enemy.getWidth(), gameFrame.tileSize, null);
+        } else {
+            enemy.faceLeft();
+            g.drawImage(enemy.getEnemyImage(), enemy.getxCordE(), enemy.getyCordE(), enemy.getWidth(), gameFrame.tileSize, null);
+        }
+
 
 
         // Text

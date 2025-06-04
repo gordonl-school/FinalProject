@@ -107,13 +107,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
          */
 
 //        g.drawImage(enemy.enemy1, enemy.xCordE, enemy.yCordE, null);
-        if (enemy.health > 0) {
-            g.drawImage(enemy.getEnemyImage(), enemy.getxCordE(), enemy.getyCordE(), gameFrame.tileSize, gameFrame.tileSize, null);
-        } else {
-            gameFunction.deathCoords(enemy.getxCordE(), enemy.getyCordE());
-            g.drawImage(gameFunction.coin, gameFunction.killedX, gameFunction.killedY, gameFrame.tileSize, gameFrame.tileSize, null);
-            enemy.killEnemy();
-        }
+//        if (enemy.health > 0) {
+//            g.drawImage(enemy.getEnemyImage(), enemy.getxCordE(), enemy.getyCordE(), gameFrame.tileSize, gameFrame.tileSize, null);
+//        } else {
+//            gameFunction.deathCoords(enemy.getxCordE(), enemy.getyCordE());
+//            g.drawImage(gameFunction.coin, gameFunction.killedX, gameFunction.killedY, gameFrame.tileSize, gameFrame.tileSize, null);
+//            enemy.killEnemy();
+//        }
 
         if (enemy.getxCordE() < player.getxCoord()) {
             enemy.faceRight();

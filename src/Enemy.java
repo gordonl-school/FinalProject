@@ -57,6 +57,12 @@ public class Enemy {
         animation = new Animation(images, 50);
     }
 
+    public void killEnemy() {
+        xCordE = 100000000;
+        yCordE = 100000000;
+
+    }
+
     public void faceRight() {
         direction = Direction.RIGHT;
     }

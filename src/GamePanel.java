@@ -1,7 +1,11 @@
+import javax.crypto.spec.PSource;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Random;
+import java.util.TimerTask;
+
 
 class Sleeper implements Runnable {
     @Override
@@ -25,12 +29,16 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     private Player player;
     private GameFrame gameFrame;
     private Timer timer;
+    private Timer enemyTimer;
     private TileManager tileM;
     private CollisionChecker checker;
     private Enemy enemy;
     private Weapon weapon;
     private Enemy enemy1;
     private GameFunction gameFunction;
+    private static boolean timerPulse = false;
+    private boolean gameGoing;
+    private static int numTimes = 1;
 
     int bounds;
 
@@ -40,7 +48,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
     public GamePanel(GameFrame gameFrame) {
         timer = new Timer(2, this);
+        enemyTimer = new Timer(5000, this);
         timer.start();
+        enemyTimer.start();
+//        enemyTimer = new Timer(10, this);
+//        enemyTimer.start();
 
         // Variables
         keyPressed = new boolean[128];
@@ -54,13 +66,17 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
         weapon = new Weapon();
         gameFunction = new GameFunction();
+        gameGoing = true;
 
         player = new Player(gameFrame, this, enemy, weapon);
         tileM = new TileManager(this, gameFrame, player, enemy);
-
+        enemies = new ArrayList<Enemy>();
         enemy = new Enemy(player);
-        enemy1 = new Enemy(player);
-        enemy1.setxCordE(700);
+        enemies.add(enemy);
+
+//        enemy = new Enemy(player);
+//        enemy1 = new Enemy(player);
+//        enemy1.setxCordE(700);
 
         this.gameFrame = gameFrame;
 
@@ -69,7 +85,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         requestFocusInWindow();
 
         bounds = 999999;
-        enemies = new ArrayList<>();
     }
 
     // Getter Methods
@@ -115,13 +130,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 //            enemy.killEnemy();
 //        }
 
-        if (enemy.getxCordE() < player.getxCoord()) {
-            enemy.faceRight();
-            g.drawImage(enemy.getEnemyImage(), enemy.getxCordE(), enemy.getyCordE(), enemy.getWidth(), gameFrame.tileSize, null);
-        } else {
-            enemy.faceLeft();
-            g.drawImage(enemy.getEnemyImage(), enemy.getxCordE(), enemy.getyCordE(), enemy.getWidth(), gameFrame.tileSize, null);
+
+
+        for (int i = 0; i < enemies.size(); i++) {
+            if (enemies.get(i).getxCordE() < player.getxCoord()) {
+                enemies.get(i).faceRight();
+                g.drawImage(enemies.get(i).getEnemyImage(), enemies.get(i).getxCordE(), enemies.get(i).getyCordE(), enemies.get(i).getWidth(), gameFrame.tileSize, null);
+            } else {
+                enemies.get(i).faceLeft();
+                g.drawImage(enemies.get(i).getEnemyImage(), enemies.get(i).getxCordE(), enemies.get(i).getyCordE(), enemies.get(i).getWidth(), gameFrame.tileSize, null);
+            }
         }
+
 
 
 
@@ -152,7 +172,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
             }
         }
 
-        enemy.move();
+        for (int i = 0; i < enemies.size(); i++) {
+            enemies.get(i).move();
+        }
         // Key interactions
         if (keyPressed[KeyEvent.VK_A]) {
             if (player.getxCoord() > 0) {
@@ -178,7 +200,28 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-        repaint();
+        Object sender = e.getSource();
+        if (sender == timer) {
+            repaint();
+        }
+        if (sender == enemyTimer) {
+            int minX = 0;
+            int maxX = 16 * 16;
+            int minY = 0;
+            int maxY = 16 * 17;
+            int i = 0;
+            Random random = new Random();
+            while (i < numTimes) {
+                enemy = new Enemy(player);
+                int randomX = random.nextInt(maxX - minX) + minX;
+                int randomY = random.nextInt(maxY - minY) + minY;
+                enemy.setxCordE(randomX);
+                enemy.setyCordE(randomY);
+                enemies.add(enemy);
+                i++;
+            }
+            numTimes++;
+        }
     }
 
     @Override

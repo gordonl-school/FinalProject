@@ -27,6 +27,8 @@ public class Enemy {
 
     BufferedImage enemy1;
 
+    static boolean attackDebounce;
+
     public Enemy(Player player) {
         // Cords
         xCordE = 100;
@@ -38,6 +40,8 @@ public class Enemy {
 
         playerReference = player;
         direction = Direction.RIGHT;
+
+        attackDebounce = false;
 
         try {
             enemy1 = ImageIO.read(new File("src/Enemy/enemy000.png"));

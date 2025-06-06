@@ -44,6 +44,14 @@ public class Weapon {
         return gunCoordY;
     }
 
+//    public int getBulletX() {
+//        return bulletX;
+//    }
+//
+//    public int getBulletY() {
+//        return bulletY;
+//    }
+
     public Rectangle bulletRect() {
         int imageHeight = bullet.getHeight();
         int imageWidth = bullet.getWidth();

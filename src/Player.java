@@ -18,6 +18,7 @@ public class Player {
     private Animation animationRight;
     private Animation animationLeft;
     private Direction direction;
+    private AnimationController animationController;
 
     // Player Stats
     private int xCoord;
@@ -26,7 +27,9 @@ public class Player {
     int health;
     int maxHealth;
 
-    public Player(GameFrame gameFrame, GamePanel gamePanel, Enemy enemy, Weapon weapon) {
+    public Player(GameFrame gameFrame, GamePanel gamePanel, Enemy enemy, Weapon weapon, AnimationController controller) {
+        // Cords
+        animationController = controller;
         tileManager = new TileManager(gamePanel, gameFrame, this, enemy);
         this.weapon = weapon;
         // Player Stats
@@ -47,7 +50,8 @@ public class Player {
                 System.out.println(e.getMessage());
             }
         }
-        animationDown = new Animation(images, 50);
+        animationDown = new Animation(images);
+        animationController.addAnimation(animationDown);
 
         // Left Loading Animation
         images = new ArrayList<>();
@@ -59,7 +63,8 @@ public class Player {
                 System.out.println(e.getMessage());
             }
         }
-        animationLeft = new Animation(images, 50);
+        animationLeft = new Animation(images);
+        animationController.addAnimation(animationLeft);
 
         // Right Loading Animation
         images = new ArrayList<>();
@@ -79,7 +84,8 @@ public class Player {
                 System.out.println(e.getMessage());
             }
         }
-        animationRight = new Animation(images, 50);
+        animationRight = new Animation(images);
+        animationController.addAnimation(animationRight);
 
         // Up Loading Animation
         images = new ArrayList<>();
@@ -91,7 +97,9 @@ public class Player {
                 System.out.println(e.getMessage());
             }
         }
-        animationUp = new Animation(images, 50);
+        animationUp = new Animation(images);
+        animationController.addAnimation(animationUp);
+
     }
 
     // Key Interactions
@@ -155,5 +163,9 @@ public class Player {
         int imageWidth = getPlayerImage().getWidth();
         Rectangle rect = new Rectangle(xCoord, yCoord, imageWidth, imageHeight);
         return rect;
+    }
+
+    public int getHealth() {
+        return health;
     }
 }

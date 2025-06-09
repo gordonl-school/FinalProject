@@ -52,8 +52,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     private static boolean timerPulse = false;
     private boolean gameGoing;
     private static int numTimes = 1;
+    private JButton restart;
 
     int bounds;
+    private AnimationController animationController;
 
     private ArrayList<Enemy> enemies;
 
@@ -72,6 +74,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
     public GamePanel(GameFrame gameFrame) {
         // Make use of the timer
+        animationController = new AnimationController(50);
         timer = new Timer(2, this);
         enemyTimer = new Timer(5000, this);
         timer.start();
@@ -93,10 +96,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         gameFunction = new GameFunction();
         gameGoing = true;
 
-        player = new Player(gameFrame, this, enemy, weapon);
+        player = new Player(gameFrame, this, enemy, weapon, animationController);
         tileM = new TileManager(this, gameFrame, player, enemy);
         enemies = new ArrayList<Enemy>();
-        enemy = new Enemy(player);
+        enemy = new Enemy(player, animationController);
         enemies.add(enemy);
 
 //        enemy = new Enemy(player);
@@ -116,8 +119,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         bulletX = new ArrayList<>();
         bulletY = new ArrayList<>();
 
-        sleeperThreadBullet = new Thread(new Sleeper(200));
-        sleeperThreadEnemy = new Thread(new Sleeper(1000));
+
     }
 
     // Getter Methods
@@ -129,13 +131,23 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        sleeperThreadBullet = new Thread(new Sleeper(200));
+        sleeperThreadEnemy = new Thread(new Sleeper(1000));
+        if (player.getHealth() == 0) {
+            gameGoing = false;
+        }
+//        if (gameGoing == false) {
+//            restart = new JButton("Restart?");
+//            restart.addActionListener(this);
+//            add(restart);
+//        }
 
         Graphics2D g2 = (Graphics2D)g;
-        tileM.draw(g2);
+        if (gameGoing) {
+            tileM.draw(g2);
 
-        g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
-        g.drawImage(weapon.gun, weapon.getGunCoordX(), weapon.getGunCoordY(), null);
+            g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
+            g.drawImage(weapon.gun, weapon.getGunCoordX(), weapon.getGunCoordY(), null);
 
         /*
         1. The first step is to create an arraylist of type Enemy
@@ -163,52 +175,53 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
 
 
-        for (int i = 0; i < enemies.size(); i++) {
-            if (enemies.get(i).getxCordE() < player.getxCoord()) {
-                enemies.get(i).faceRight();
-                g.drawImage(enemies.get(i).getEnemyImage(), enemies.get(i).getxCordE(), enemies.get(i).getyCordE(), enemies.get(i).getWidth(), gameFrame.tileSize, null);
-            } else {
-                enemies.get(i).faceLeft();
-                g.drawImage(enemies.get(i).getEnemyImage(), enemies.get(i).getxCordE(), enemies.get(i).getyCordE(), enemies.get(i).getWidth(), gameFrame.tileSize, null);
+            for (int i = 0; i < enemies.size(); i++) {
+                if (enemies.get(i).getxCordE() < player.getxCoord()) {
+                    enemies.get(i).faceRight();
+                    g.drawImage(enemies.get(i).getEnemyImage(), enemies.get(i).getxCordE(), enemies.get(i).getyCordE(), enemies.get(i).getWidth(), gameFrame.tileSize, null);
+                } else {
+                    enemies.get(i).faceLeft();
+                    g.drawImage(enemies.get(i).getEnemyImage(), enemies.get(i).getxCordE(), enemies.get(i).getyCordE(), enemies.get(i).getWidth(), gameFrame.tileSize, null);
+                }
             }
-        }
 
 
-        // Text
-        g.setFont(new Font("Courier New", Font.BOLD, 24));
-        g.drawString("Health: " + player.health + "/" + player.maxHealth, 5,20);
+            // Text
+            g.setFont(new Font("Courier New", Font.BOLD, 24));
+            g.drawString("Health: " + player.health + "/" + player.maxHealth, 5,20);
 
-        if (!Weapon.bulletDebounce && keyPressed[KeyEvent.VK_V]) {
-            weapon.bulletX = weapon.gunCoordX;
-            weapon.bulletY = weapon.gunCoordY;
+            if (!Weapon.bulletDebounce && keyPressed[KeyEvent.VK_V]) {
+                weapon.bulletX = weapon.gunCoordX;
+                weapon.bulletY = weapon.gunCoordY;
 //            bullets.add(g.drawImage(weapon.bullet, weapon.bulletX, weapon.bulletY, null));
-            bullets.add(weapon.bullet);
-            bulletX.add(weapon.bulletX);
-            bulletY.add(weapon.bulletY);
-            sleeperThreadBullet.start(); //.2s
-        }
-        for (int i = 0; i < bullets.size(); i++) {
-            BufferedImage bullet = bullets.get(i);
-            g.drawImage(bullet, bulletX.get(i), bulletY.get(i), null);
-            bulletX.set(i, bulletX.get(i) - 10);
-        }
-
-        for (int i = 0; i < bullets.size(); i++) {
-            if (bulletX.get(i) < -500) {
-                bullets.remove(i);
-                bulletX.remove(i);
-                bulletY.remove(i);
-                i--;
+                bullets.add(weapon.bullet);
+                bulletX.add(weapon.bulletX);
+                bulletY.add(weapon.bulletY);
+                sleeperThreadBullet.start(); //.2s
             }
-        }
-
-        if (player.playerRect().intersects(enemy.enemyRect())) {
-            if (!Enemy.attackDebounce && enemy.health > 0) {
-                player.health -= enemy.attack;
-                System.out.println("Touched");
-                sleeperThreadEnemy.start(); // 1s
+            for (int i = 0; i < bullets.size(); i++) {
+                BufferedImage bullet = bullets.get(i);
+                g.drawImage(bullet, bulletX.get(i), bulletY.get(i), null);
+                bulletX.set(i, bulletX.get(i) - 10);
             }
-        }
+
+            for (int i = 0; i < bullets.size(); i++) {
+                if (bulletX.get(i) < -500) {
+                    bullets.remove(i);
+                    bulletX.remove(i);
+                    bulletY.remove(i);
+                    i--;
+                }
+            }
+
+            if (player.playerRect().intersects(enemy.enemyRect())) {
+                if (!Enemy.attackDebounce && enemy.health > 0) {
+                    player.health -= enemy.attack;
+                    System.out.println("Touched");
+                    sleeperThreadEnemy.start(); // 1s
+                }
+
+            }
 
 //        if (enemy.enemyRect().intersects(weapon.bulletRect())) {
 //            if (!Weapon.bulletDebounce && enemy.health > 0) {
@@ -220,31 +233,36 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 //            }
 //        }
 
-        for (int i = 0; i < enemies.size(); i++) {
-            enemies.get(i).move();
-        }
-        // Key interactions
-        if (keyPressed[KeyEvent.VK_A]) {
-            if (player.getxCoord() > 0) {
-                player.moveLeft();
+            for (int i = 0; i < enemies.size(); i++) {
+                enemies.get(i).move();
             }
-        }
-        if (keyPressed[KeyEvent.VK_D]) {
-            if (player.getxCoord() < gameFrame.screenWidth - 48) {
-                player.moveRight();
+            // Key interactions
+            if (keyPressed[KeyEvent.VK_A]) {
+                if (player.getxCoord() > 0) {
+                    player.moveLeft();
+                }
             }
-        }
-        if (keyPressed[KeyEvent.VK_W]) {
-            if (player.getyCoord() > 0) {
-                player.moveUp();
+            if (keyPressed[KeyEvent.VK_D]) {
+                if (player.getxCoord() < gameFrame.screenWidth - 48) {
+                    player.moveRight();
+                }
             }
-        }
-        if (keyPressed[KeyEvent.VK_S]) {
-            if (player.getyCoord() < gameFrame.screenHeight - 87) {
-                player.moveDown();
+            if (keyPressed[KeyEvent.VK_W]) {
+                if (player.getyCoord() > 0) {
+                    player.moveUp();
+                }
             }
+            if (keyPressed[KeyEvent.VK_S]) {
+                if (player.getyCoord() < gameFrame.screenHeight - 87) {
+                    player.moveDown();
+                }
+            }
+            checker.checkTile(player);
+        } else {
+            g.setFont(new Font("Times New Roman", Font.BOLD, 36));
+            g.drawString("Game Over!", 250, 350);
+//            restart.setLocation(500, 600);
         }
-        checker.checkTile(player);
     }
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -260,7 +278,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
             int i = 0;
             Random random = new Random();
             while (i < numTimes) {
-                enemy = new Enemy(player);
+                enemy = new Enemy(player, animationController);
                 int randomX = random.nextInt(maxX - minX) + minX;
                 int randomY = random.nextInt(maxY - minY) + minY;
                 enemy.setxCordE(randomX);
@@ -269,6 +287,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 i++;
             }
             numTimes++;
+        }
+        if (sender == restart) {
+            gameGoing = true;
         }
     }
 

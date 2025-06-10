@@ -67,7 +67,6 @@ public class Enemy {
     public void killEnemy() {
         xCordE = 100000000;
         yCordE = 100000000;
-
     }
 
     public void faceRight() {
@@ -83,6 +82,14 @@ public class Enemy {
         } else {
             return (xCordE + (getEnemyImage().getWidth()));
         }
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
     }
 
     public int getHeight() {

@@ -62,12 +62,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     private ArrayList<Double> bulletY;
     private ArrayList<Double> bulletVX;
     private ArrayList<Double> bulletVY;
+    private ArrayList<GameFunction> coins;
 
     Thread sleeperThreadBullet;
     Thread sleeperThreadEnemy;
 
     int mouseMotionX;
     int mouseMotionY;
+    int gems;
     AffineTransform transform;
     boolean rotated = false;
 
@@ -126,9 +128,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         bulletY = new ArrayList<>();
         bulletVX = new ArrayList<>();
         bulletVY = new ArrayList<>();
+        coins = new ArrayList<>();
 
         mouseMotionX = 0;
         mouseMotionY = 0;
+        gems = 0;
 
         transform = new AffineTransform();
         mousePressed = false;
@@ -138,7 +142,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (player.getHealth() == 0) {
+        if (player.getHealth() <= 0) {
             gameGoing = false;
         }
 
@@ -163,11 +167,23 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                     g.drawImage(currentEnemy.getEnemyImage(), currentEnemy.getxCordE(), currentEnemy.getyCordE(), currentEnemy.getWidth(), gameFrame.tileSize, null);
                 }
 
+                for (int i = 0; i < coins.size(); i++) {
+                    GameFunction currentCoin = coins.get(i);
+                    g.drawImage(gameFunction.coin, currentCoin.coinCoordX, currentCoin.coinCoordY, null);
+                    if (player.playerRect().intersects(currentCoin.coinRect())) {
+                        gems++;
+                        coins.remove(i);
+                        i--;
+                    }
+                }
+
 
                 // Text
                 g.setFont(new Font("Courier New", Font.BOLD, 24));
                 g.drawString("Health: " + player.health + "/" + player.maxHealth, 5, 20);
                 g.drawString("Enemies: " + enemies.size(), 5, 50);
+                g.drawString("Wave " + numTimes + "/20", 670, 20);
+                g.drawString("Gems: " + gems, 350, 20);
                 if (!Weapon.bulletDebounce && mousePressed) {
                     // This is to calculate the velocity
                     double startX = player.getxCoord() + gameFrame.tileSize / 2.0;
@@ -211,6 +227,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 }
 
                 checkBulletCollisions();
+
 
                 for (int i = enemies.size() - 1; i >= 0; i--) {
                     Enemy currentEnemy = enemies.get(i);
@@ -318,6 +335,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
                     if (currentEnemy.getHealth() <= 0) {
                         System.out.println("Enemy dead");
+                        GameFunction coin = new GameFunction();
+                        coin.setCoinCoordX(currentEnemy.xCordE);
+                        coin.setCoinCoordY(currentEnemy.yCordE);
+                        coins.add(coin);
                         enemies.remove(j);
                     }
                     break;

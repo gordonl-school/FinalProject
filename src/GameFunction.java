@@ -5,19 +5,11 @@ import java.io.File;
 import java.io.IOException;
 
 public class GameFunction {
-    int wave;
-    int enemy;
-
-    int killedX;
-    int killedY;
-
-    int killed;
+    int coinCoordX;
+    int coinCoordY;
 
     BufferedImage coin;
     public GameFunction() {
-        wave = 1;
-        enemy = 1;
-        killed = 0;
 
         try {
             coin = ImageIO.read(new File("src/OtherSprites/Coin.png"));
@@ -26,14 +18,17 @@ public class GameFunction {
         }
     }
 
-    public void addWave() {
-        wave += 1;
+    public void setCoinCoordX(int coinCoordX) {
+        this.coinCoordX = coinCoordX;
     }
-    public void calculateEnemies() {
-        enemy = (int) ((enemy + wave) * 1.5);
+
+    public void setCoinCoordY(int coinCoordY) {
+        this.coinCoordY = coinCoordY;
     }
-    public void deathCoords(int x, int y) {
-        killedX = x;
-        killedY = y;
+    public Rectangle coinRect() {
+        int imageHeight = coin.getHeight();
+        int imageWidth = coin.getWidth();
+        Rectangle rect = new Rectangle(coinCoordX, coinCoordY, imageWidth, imageHeight);
+        return rect;
     }
 }

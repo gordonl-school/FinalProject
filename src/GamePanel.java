@@ -317,8 +317,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
             for (int j = enemies.size() - 1; j >= 0; j--) {
                 Enemy currentEnemy = enemies.get(j);
                 if (bulletRect.intersects(currentEnemy.enemyRect())) {
-                    currentEnemy.health -= weapon.gunDamage;
-                    System.out.println("Hit\nEnemy Health: " + currentEnemy.health);
+                    currentEnemy.setHealth(currentEnemy.getHealth() - weapon.gunDamage);
+                    System.out.println("Hit\nEnemy Health: " + currentEnemy.getHealth());
 
                     bullets.remove(i);
                     bulletX.remove(i);
@@ -326,7 +326,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                     bulletVX.remove(i);
                     bulletVY.remove(i);
 
-                    if (currentEnemy.health <= 0) {
+                    if (currentEnemy.getHealth() <= 0) {
                         System.out.println("Enemy dead");
                         enemies.remove(j);
                     }

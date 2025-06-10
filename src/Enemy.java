@@ -19,7 +19,7 @@ public class Enemy {
     private final int SPEED = 2;
 
     int attack;
-    int health;
+    private int health;
 
     int xCordE;
     int yCordE;

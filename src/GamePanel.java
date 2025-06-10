@@ -1,8 +1,12 @@
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Random;
@@ -136,6 +140,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
         transform = new AffineTransform();
         mousePressed = false;
+
+        playMusic();
     }
 
 
@@ -271,9 +277,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 }
             }
         } else {
+            g.setFont(new Font("EB Garamond", Font.BOLD, 44));
+            g.drawString("Welcome to GD's Mow Down!", 85, 300);
+            g.setFont(new Font("EB Garamond", Font.BOLD, 14));
+            g.drawString("WASD to move, mouse click to shoot at enemies. Good luck!", 200, 350);
             start.setSize(300, 100);
             start.setFont(new Font("EB Garamond", Font.BOLD, 64));
-            start.setLocation(250, 300);
+            start.setLocation(250, 375);
         }
     }
     @Override
@@ -395,4 +405,18 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
     @Override
     public void mouseExited (MouseEvent e){}
+
+    private void playMusic() {
+        File audioFile = new File("src/SwitchWithMeTheme.wav");
+        try {
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioStream);
+            clip.start();
+            clip.loop(Clip.LOOP_CONTINUOUSLY); // repeats song
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
 }

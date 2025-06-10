@@ -28,7 +28,7 @@ class Sleeper implements Runnable {
     }
 }
 
-public class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMotionListener {
+public class GamePanel extends JPanel implements ActionListener, KeyListener, MouseMotionListener, MouseListener {
     private boolean[] keyPressed;
 
     // Other Classes
@@ -42,12 +42,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     private Weapon weapon;
     private Enemy enemy1;
     private GameFunction gameFunction;
+
     private static boolean timerPulse = false;
     private boolean gameGoing;
     private static int numTimes = 1;
     private JButton start;
     private boolean started = false;
     private boolean newWave = true;
+    boolean mousePressed;
 
 
     int bounds;
@@ -95,6 +97,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         // Implements
         addKeyListener(this);
         addMouseMotionListener(this);
+        addMouseListener(this);
 
         // Other Classes
         checker = new CollisionChecker(this);
@@ -128,9 +131,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         mouseMotionY = 0;
 
         transform = new AffineTransform();
-
+        mousePressed = false;
     }
-
 
 
     @Override
@@ -146,7 +148,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
             start.setVisible(false);
             if (gameGoing) {
                 tileM.draw(g2);
-
                 g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
                 g.drawImage(weapon.gun, weapon.getGunCoordX(), weapon.getGunCoordY(), null);
 
@@ -160,7 +161,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                         currentEnemy.faceLeft();
                     }
                     g.drawImage(currentEnemy.getEnemyImage(), currentEnemy.getxCordE(), currentEnemy.getyCordE(), currentEnemy.getWidth(), gameFrame.tileSize, null);
-
                 }
 
 
@@ -168,8 +168,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 g.setFont(new Font("Courier New", Font.BOLD, 24));
                 g.drawString("Health: " + player.health + "/" + player.maxHealth, 5, 20);
                 g.drawString("Enemies: " + enemies.size(), 5, 50);
-
-                if (!Weapon.bulletDebounce && keyPressed[KeyEvent.VK_V]) {
+                if (!Weapon.bulletDebounce && mousePressed) {
                     // This is to calculate the velocity
                     double startX = player.getxCoord() + gameFrame.tileSize / 2.0;
                     double startY = player.getyCoord() + gameFrame.tileSize / 2.0;
@@ -213,7 +212,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
                 checkBulletCollisions();
 
-                for (int i = enemies.size()-1; i >= 0; i--) {
+                for (int i = enemies.size() - 1; i >= 0; i--) {
                     Enemy currentEnemy = enemies.get(i);
                     if (player.playerRect().intersects(currentEnemy.enemyRect())) {
                         if (!Enemy.attackDebounce && currentEnemy.getHealth() > 0) {
@@ -223,7 +222,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                         }
                     }
                 }
-
                 // Key interactions
                 if (keyPressed[KeyEvent.VK_A]) {
                     if (player.getxCoord() > 0) {
@@ -260,10 +258,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
             start.setFont(new Font("EB Garamond", Font.BOLD, 64));
             start.setLocation(250, 300);
         }
-
     }
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed (ActionEvent e) {
         Object sender = e.getSource();
         if (sender == timer) {
             repaint();
@@ -275,7 +272,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
             int maxY = 48 * 17;
             int i = 0;
             Random random = new Random();
-            while (i < numTimes && newWave) {
+            while (i < numTimes + (numTimes * 2) && newWave) {
                 enemy = new Enemy(player, animationController);
                 int randomX = random.nextInt(maxX - minX) + minX;
                 int randomY = random.nextInt(maxY - minY) + minY;
@@ -299,33 +296,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         }
     }
 
-    @Override
-    public void keyTyped(KeyEvent e) {}
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        keyPressed[e.getKeyCode()] = true;
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        keyPressed[e.getKeyCode()] = false;
-    }
-
-
-    // MOUSE MOTION METHODS
-    @Override
-    public void mouseDragged(MouseEvent e) {}
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-        mouseMotionX = e.getX();
-        mouseMotionY = e.getY();
-//        System.out.println("Mouse moved to: (" + mouseMotionX + ", " + mouseMotionY + ")");
-    }
-
     private void checkBulletCollisions() {
-        for (int i = bullets.size() -1; i >= 0; i--) {
+        for (int i = bullets.size() - 1; i >= 0; i--) {
             double bX = bulletX.get(i);
             double bY = bulletY.get(i);
 
@@ -338,7 +310,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 if (bulletRect.intersects(currentEnemy.enemyRect())) {
                     currentEnemy.setHealth(currentEnemy.getHealth() - weapon.gunDamage);
                     System.out.println("Hit\nEnemy Health: " + currentEnemy.getHealth());
-
                     bullets.remove(i);
                     bulletX.remove(i);
                     bulletY.remove(i);
@@ -354,4 +325,53 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
             }
         }
     }
+
+    @Override
+    public void keyTyped (KeyEvent e){}
+
+    @Override
+    public void keyPressed (KeyEvent e){
+        keyPressed[e.getKeyCode()] = true;
+    }
+
+    @Override
+    public void keyReleased (KeyEvent e){
+        keyPressed[e.getKeyCode()] = false;
+    }
+
+    // MOUSE MOTION METHODS
+    @Override
+    public void mouseDragged (MouseEvent e){
+        mouseMotionX = e.getX();
+        mouseMotionY = e.getY();
+    }
+
+    @Override
+    public void mouseMoved (MouseEvent e){
+        mouseMotionX = e.getX();
+        mouseMotionY = e.getY();
+    }
+
+    @Override
+    public void mouseClicked (MouseEvent e){}
+
+    @Override
+    public void mousePressed (MouseEvent e){
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            mousePressed = true;
+        }
+    }
+
+    @Override
+    public void mouseReleased (MouseEvent e){
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            mousePressed = false;
+        }
+    }
+
+    @Override
+    public void mouseEntered (MouseEvent e){}
+
+    @Override
+    public void mouseExited (MouseEvent e){}
 }

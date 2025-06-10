@@ -26,7 +26,7 @@ public class Weapon {
         gunCoordX = 370;
         gunCoordY = 340;
 
-        gunDamage = 50;
+        gunDamage = 20;
 
         try {
             gun = ImageIO.read(new File("src/OtherSprites/Gun.png"));

@@ -13,6 +13,7 @@ public class Enemy {
     private Animation animation;
     private boolean facingRight;
     private Direction direction;
+    private AnimationController animationController;
 
     // Enemy Stats
     private final int SPEED = 2;
@@ -29,8 +30,9 @@ public class Enemy {
 
     static boolean attackDebounce;
 
-    public Enemy(Player player) {
+    public Enemy(Player player, AnimationController controller) {
         // Cords
+        animationController = controller;
         xCordE = 100;
         yCordE = 100;
 
@@ -58,7 +60,8 @@ public class Enemy {
                 System.out.println(e.getMessage());
             }
         }
-        animation = new Animation(images, 50);
+        animation = new Animation(images);
+        animationController.addAnimation(animation);
     }
 
     public void killEnemy() {

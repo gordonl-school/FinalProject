@@ -45,7 +45,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     private static boolean timerPulse = false;
     private boolean gameGoing;
     private static int numTimes = 1;
-    private JButton restart;
+    private JButton start;
+    private boolean started = false;
     private boolean newWave = true;
 
 
@@ -76,7 +77,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
 
     public GamePanel(GameFrame gameFrame) {
-
+        start = new JButton("Play!");
+        start.addActionListener(this);
+        add(start);
         // Make use of the timer
         animationController = new AnimationController(50);
         timer = new Timer(2, this);
@@ -139,113 +142,125 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
         Graphics2D g2 = (Graphics2D) g;
         tileM.draw(g2);
+        if (started) {
+            start.setVisible(false);
+            if (gameGoing) {
+                tileM.draw(g2);
 
-        if (gameGoing) {
-            tileM.draw(g2);
+                g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
+                g.drawImage(weapon.gun, weapon.getGunCoordX(), weapon.getGunCoordY(), null);
 
-            g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
-            g.drawImage(weapon.gun, weapon.getGunCoordX(), weapon.getGunCoordY(), null);
+                for (int i = 0; i < enemies.size(); i++) {
+                    Enemy currentEnemy = enemies.get(i);
+                    currentEnemy.move();
 
-            for (int i = 0; i < enemies.size(); i++) {
-                Enemy currentEnemy = enemies.get(i);
-                currentEnemy.move();
+                    if (currentEnemy.getxCordE() < player.getxCoord()) {
+                        currentEnemy.faceRight();
+                    } else {
+                        currentEnemy.faceLeft();
+                    }
+                    g.drawImage(currentEnemy.getEnemyImage(), currentEnemy.getxCordE(), currentEnemy.getyCordE(), currentEnemy.getWidth(), gameFrame.tileSize, null);
 
-                if (currentEnemy.getxCordE() < player.getxCoord()) {
-                    currentEnemy.faceRight();
-                } else {
-                    currentEnemy.faceLeft();
                 }
-                g.drawImage(currentEnemy.getEnemyImage(), currentEnemy.getxCordE(), currentEnemy.getyCordE(), currentEnemy.getWidth(), gameFrame.tileSize, null);
-
-            }
 
 
-            // Text
-            g.setFont(new Font("Courier New", Font.BOLD, 24));
-            g.drawString("Health: " + player.health + "/" + player.maxHealth, 5, 20);
-            g.drawString("Enemies: " + enemies.size(), 5, 50);
+                // Text
+                g.setFont(new Font("Courier New", Font.BOLD, 24));
+                g.drawString("Health: " + player.health + "/" + player.maxHealth, 5, 20);
+                g.drawString("Enemies: " + enemies.size(), 5, 50);
 
-            if (!Weapon.bulletDebounce && keyPressed[KeyEvent.VK_V]) {
-                // This is to calculate the velocity
-                double startX = player.getxCoord() + gameFrame.tileSize / 2.0;
-                double startY = player.getyCoord() + gameFrame.tileSize / 2.0;
+                if (!Weapon.bulletDebounce && keyPressed[KeyEvent.VK_V]) {
+                    // This is to calculate the velocity
+                    double startX = player.getxCoord() + gameFrame.tileSize / 2.0;
+                    double startY = player.getyCoord() + gameFrame.tileSize / 2.0;
 
-                double dx = mouseMotionX - startX;
-                double dy = mouseMotionY - startY;
-                double distance = Math.sqrt(dx * dx + dy * dy);
+                    double dx = mouseMotionX - startX;
+                    double dy = mouseMotionY - startY;
+                    double distance = Math.sqrt(dx * dx + dy * dy);
 
-                if (distance > 0) {
-                    double speed = 8.0;
-                    double vx = (dx / distance) * speed;
-                    double vy = (dy / distance) * speed;
+                    if (distance > 0) {
+                        double speed = 8.0;
+                        double vx = (dx / distance) * speed;
+                        double vy = (dy / distance) * speed;
 
-                    // Store things for new bullet
-                    bullets.add(weapon.bullet);
-                    bulletX.add(startX);
-                    bulletY.add(startY);
-                    bulletVX.add(vx);
-                    bulletVY.add(vy);
+                        // Store things for new bullet
+                        bullets.add(weapon.bullet);
+                        bulletX.add(startX);
+                        bulletY.add(startY);
+                        bulletVX.add(vx);
+                        bulletVY.add(vy);
 
-                    Thread newSleeperThread = new Thread(new Sleeper(200));
-                    newSleeperThread.start();
-                }
-            }
-            for (int i = 0; i < bullets.size(); i++) {
-                bulletX.set(i, bulletX.get(i) + bulletVX.get(i));
-                bulletY.set(i, bulletY.get(i) + bulletVY.get(i));
-                g.drawImage(bullets.get(i), (int) Math.round(bulletX.get(i)), (int) Math.round(bulletY.get(i)), null);
-            }
-            for (int i = bullets.size() - 1; i >= 0; i--) {
-                double x = bulletX.get(i);
-                double y = bulletY.get(i);
-                if (x < -100 || x > 1100 || y < -100 || y > 1100) {
-                    bullets.remove(i);
-                    bulletX.remove(i);
-                    bulletY.remove(i);
-                    bulletVX.remove(i);
-                    bulletVY.remove(i);
-                }
-            }
-
-            checkBulletCollisions();
-
-            for (int i = enemies.size()-1; i >= 0; i--) {
-                Enemy currentEnemy = enemies.get(i);
-                if (player.playerRect().intersects(currentEnemy.enemyRect())) {
-                    if (!Enemy.attackDebounce && currentEnemy.getHealth() > 0) {
-                        player.health -= currentEnemy.attack;
-                        Thread sleeperThread = new Thread(new Sleeper(1000));
-                        sleeperThread.start();
+                        Thread newSleeperThread = new Thread(new Sleeper(200));
+                        newSleeperThread.start();
                     }
                 }
-            }
+                for (int i = 0; i < bullets.size(); i++) {
+                    bulletX.set(i, bulletX.get(i) + bulletVX.get(i));
+                    bulletY.set(i, bulletY.get(i) + bulletVY.get(i));
+                    g.drawImage(bullets.get(i), (int) Math.round(bulletX.get(i)), (int) Math.round(bulletY.get(i)), null);
+                }
+                for (int i = bullets.size() - 1; i >= 0; i--) {
+                    double x = bulletX.get(i);
+                    double y = bulletY.get(i);
+                    if (x < -100 || x > 1100 || y < -100 || y > 1100) {
+                        bullets.remove(i);
+                        bulletX.remove(i);
+                        bulletY.remove(i);
+                        bulletVX.remove(i);
+                        bulletVY.remove(i);
+                    }
+                }
 
-            // Key interactions
-            if (keyPressed[KeyEvent.VK_A]) {
-                if (player.getxCoord() > 0) {
-                    player.moveLeft();
+                checkBulletCollisions();
+
+                for (int i = enemies.size()-1; i >= 0; i--) {
+                    Enemy currentEnemy = enemies.get(i);
+                    if (player.playerRect().intersects(currentEnemy.enemyRect())) {
+                        if (!Enemy.attackDebounce && currentEnemy.getHealth() > 0) {
+                            player.health -= currentEnemy.attack;
+                            Thread sleeperThread = new Thread(new Sleeper(1000));
+                            sleeperThread.start();
+                        }
+                    }
+                }
+
+                // Key interactions
+                if (keyPressed[KeyEvent.VK_A]) {
+                    if (player.getxCoord() > 0) {
+                        player.moveLeft();
+                    }
+                }
+                if (keyPressed[KeyEvent.VK_D]) {
+                    if (player.getxCoord() < gameFrame.screenWidth - 48) {
+                        player.moveRight();
+                    }
+                }
+                if (keyPressed[KeyEvent.VK_W]) {
+                    if (player.getyCoord() > 0) {
+                        player.moveUp();
+                    }
+                }
+                if (keyPressed[KeyEvent.VK_S]) {
+                    if (player.getyCoord() < gameFrame.screenHeight - 87) {
+                        player.moveDown();
+                    }
+                }
+                checker.checkTile(player);
+            } else {
+                if (numTimes == 21) {
+                    g.setFont(new Font("Times New Roman", Font.BOLD, 36));
+                    g.drawString("You win!", 275, 350);
+                } else {
+                    g.setFont(new Font("Times New Roman", Font.BOLD, 36));
+                    g.drawString("Game Over!", 275, 350);
                 }
             }
-            if (keyPressed[KeyEvent.VK_D]) {
-                if (player.getxCoord() < gameFrame.screenWidth - 48) {
-                    player.moveRight();
-                }
-            }
-            if (keyPressed[KeyEvent.VK_W]) {
-                if (player.getyCoord() > 0) {
-                    player.moveUp();
-                }
-            }
-            if (keyPressed[KeyEvent.VK_S]) {
-                if (player.getyCoord() < gameFrame.screenHeight - 87) {
-                    player.moveDown();
-                }
-            }
-            checker.checkTile(player);
         } else {
-            g.setFont(new Font("Times New Roman", Font.BOLD, 36));
-            g.drawString("Game Over!", 250, 350);
+            start.setSize(300, 100);
+            start.setFont(new Font("EB Garamond", Font.BOLD, 64));
+            start.setLocation(250, 300);
         }
+
     }
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -274,9 +289,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 newWave = true;
                 numTimes++;
             }
+            if (numTimes == 21) {
+                newWave = false;
+                gameGoing = false;
+            }
         }
-        if (sender == restart) {
-            gameGoing = true;
+        if (sender == start) {
+            started = true;
         }
     }
 

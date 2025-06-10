@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.nio.Buffer;
 import java.util.ArrayList;
@@ -50,11 +51,19 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     private ArrayList<Enemy> enemies;
 
     private ArrayList<BufferedImage> bullets;
-    private ArrayList<Integer> bulletX;
-    private ArrayList<Integer> bulletY;
+    private ArrayList<Double> bulletX;
+    private ArrayList<Double> bulletY;
+    private ArrayList<Double> bulletVX;
+    private ArrayList<Double> bulletVY;
 
     Thread sleeperThreadBullet;
     Thread sleeperThreadEnemy;
+
+    int mouseMotionX;
+    int mouseMotionY;
+    AffineTransform transform;
+    boolean rotated = false;
+
 
     // Elapsed time
     // Current time
@@ -63,6 +72,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
 
     public GamePanel(GameFrame gameFrame) {
+
         // Make use of the timer
         timer = new Timer(2, this);
         timer.start();
@@ -89,7 +99,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
         this.gameFrame = gameFrame;
 
-
         setFocusable(true);
         requestFocusInWindow();
 
@@ -99,51 +108,37 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         bullets = new ArrayList<>();
         bulletX = new ArrayList<>();
         bulletY = new ArrayList<>();
+        bulletVX = new ArrayList<>();
+        bulletVY = new ArrayList<>();
 
-        sleeperThreadBullet = new Thread(new Sleeper(200));
-        sleeperThreadEnemy = new Thread(new Sleeper(1000));
+        mouseMotionX = 0;
+        mouseMotionY = 0;
+
+        transform = new AffineTransform();
+
     }
-
-    // Getter Methods
-    public int getTileSize() {
-        return gameFrame.tileSize;
-    }
-
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+        sleeperThreadEnemy = new Thread(new Sleeper(1000));
 
-
-        Graphics2D g2 = (Graphics2D)g;
+        Graphics2D g2 = (Graphics2D) g;
         tileM.draw(g2);
 
         g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
-        g.drawImage(weapon.gun, weapon.getGunCoordX(), weapon.getGunCoordY(), null);
 
-        /*
-        1. The first step is to create an arraylist of type Enemy
-        2. Create a new boolean that detects whether it is a new wave. If it is a new wave then the enemies will be added to the arraylist
-        3. after the enemies is added to the arraylist, the boolean variable will be set to false. This then means that after the first iteration, it wouldn't go through the loop again
-        4. AFter this, I would add an if statement that checks if the arraylist of type enemy is 0. if the arraylist has a length of 0, then it means there are no enemies there.
-        5. If there are no enemies there, then it means it's dead. After activating the if statment, it will call the method addWave.
-        6. After calling add wave, the number of waves will increase by 1 and set the boolean variable to true again to indicate the start of a new wave
+//        int centerX = weapon.gun.getWidth() / 2;
+//        int centerY = weapon.gun.getHeight() / 2;
+//        transform.rotate(rotationAngle, centerX, centerY);
+        if (!rotated) {
+            rotated = true;
 
-       - Within the code, I need to make it so after each bullet collsiion with an enemy, I will find the correct enemy that recieved the collision and then do
-       something such as enemy.health -= weapon.gunDamagae.
-       - At the end of the code, I will add another for loop that loops through each element of the arraylist of type enemy. It will then check each of the enemy's
-       health to see if it's greater than 0. if the enemy's health is not greater than 0 meaning it's 0 or less, then it means the enemy is dead. if the enemy is dead
-       then i will remove it fromt he arraylist of type enemy.
-         */
-
-//        g.drawImage(enemy.enemy1, enemy.xCordE, enemy.yCordE, null);
-//        if (enemy.health > 0) {
-//            g.drawImage(enemy.getEnemyImage(), enemy.getxCordE(), enemy.getyCordE(), gameFrame.tileSize, gameFrame.tileSize, null);
-//        } else {
-//            gameFunction.deathCoords(enemy.getxCordE(), enemy.getyCordE());
-//            g.drawImage(gameFunction.coin, gameFunction.killedX, gameFunction.killedY, gameFrame.tileSize, gameFrame.tileSize, null);
-//            enemy.killEnemy();
-//        }
+        }
+        g2.rotate(Math.toRadians(45), player.getxCoord(), player.getyCoord());
+        g2.drawImage(weapon.gun, player.getxCoord(), player.getyCoord(), this);
+        g2.rotate(Math.toRadians(30), 50, 50);
+        g2.setTransform(transform);
 
         if (enemy.getxCordE() < player.getxCoord()) {
             enemy.faceRight();
@@ -155,29 +150,47 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
         // Text
         g.setFont(new Font("Courier New", Font.BOLD, 24));
-        g.drawString("Health: " + player.health + "/" + player.maxHealth, 5,20);
+        g.drawString("Health: " + player.health + "/" + player.maxHealth, 5, 20);
 
         if (!Weapon.bulletDebounce && keyPressed[KeyEvent.VK_V]) {
-            weapon.bulletX = weapon.gunCoordX;
-            weapon.bulletY = weapon.gunCoordY;
-//            bullets.add(g.drawImage(weapon.bullet, weapon.bulletX, weapon.bulletY, null));
-            bullets.add(weapon.bullet);
-            bulletX.add(weapon.bulletX);
-            bulletY.add(weapon.bulletY);
-            sleeperThreadBullet.start(); //.2s
-        }
-        for (int i = 0; i < bullets.size(); i++) {
-            BufferedImage bullet = bullets.get(i);
-            g.drawImage(bullet, bulletX.get(i), bulletY.get(i), null);
-            bulletX.set(i, bulletX.get(i) - 10);
-        }
+            // This is to calculate the velocity
+            double startX = player.getxCoord() + gameFrame.tileSize / 2.0;
+            double startY = player.getyCoord() + gameFrame.tileSize / 2.0;
 
+            double dx = mouseMotionX - startX;
+            double dy = mouseMotionY - startY;
+            double distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > 0) {
+                double speed = 8.0;
+                double vx = (dx / distance) * speed;
+                double vy = (dy / distance) * speed;
+
+                // Store things for new bullet
+                bullets.add(weapon.bullet);
+                bulletX.add(startX);
+                bulletY.add(startY);
+                bulletVX.add(vx);
+                bulletVY.add(vy);
+
+                Thread newSleeperThread = new Thread(new Sleeper(200));
+                newSleeperThread.start();
+            }
+        }
         for (int i = 0; i < bullets.size(); i++) {
-            if (bulletX.get(i) < -500) {
+            bulletX.set(i, bulletX.get(i) + bulletVX.get(i));
+            bulletY.set(i, bulletY.get(i) + bulletVY.get(i));
+            g.drawImage(bullets.get(i), (int) Math.round(bulletX.get(i)), (int) Math.round(bulletY.get(i)), null);
+        }
+        for (int i = bullets.size() - 1; i >= 0; i--) {
+            double x = bulletX.get(i);
+            double y = bulletY.get(i);
+            if (x < -100 || x > 1100 || y < -100 || y > 1100) {
                 bullets.remove(i);
                 bulletX.remove(i);
                 bulletY.remove(i);
-                i--;
+                bulletVX.remove(i);
+                bulletVY.remove(i);
             }
         }
 
@@ -188,16 +201,6 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 sleeperThreadEnemy.start(); // 1s
             }
         }
-
-//        if (enemy.enemyRect().intersects(weapon.bulletRect())) {
-//            if (!Weapon.bulletDebounce && enemy.health > 0) {
-//                enemy.health -= weapon.gunDamage;
-//                System.out.println("Hit!");
-//                System.out.println("Enemy Health: " + enemy.health);
-//                weapon.bulletX = bounds;
-//                sleeperThread.start();
-//            }
-//        }
 
         enemy.move();
         // Key interactions
@@ -250,6 +253,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
     @Override
     public void mouseMoved(MouseEvent e) {
-
+        mouseMotionX = e.getX();
+        mouseMotionY = e.getY();
+        System.out.println("Mouse moved to: (" + mouseMotionX + ", " + mouseMotionY + ")");
     }
 }

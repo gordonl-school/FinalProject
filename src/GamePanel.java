@@ -165,13 +165,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 //        transform.rotate(rotationAngle, centerX, centerY);
             if (!rotated) {
                 rotated = true;
-    
+
             }
             g2.rotate(Math.toRadians(45), player.getxCoord(), player.getyCoord());
             g2.drawImage(weapon.gun, player.getxCoord(), player.getyCoord(), this);
             g2.rotate(Math.toRadians(30), 50, 50);
             g2.setTransform(transform);
-    
+
             if (enemy.getxCordE() < player.getxCoord()) {
                 enemy.faceRight();
                 g.drawImage(enemy.getEnemyImage(), enemy.getxCordE(), enemy.getyCordE(), enemy.getWidth(), gameFrame.tileSize, null);
@@ -179,32 +179,32 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 enemy.faceLeft();
                 g.drawImage(enemy.getEnemyImage(), enemy.getxCordE(), enemy.getyCordE(), enemy.getWidth(), gameFrame.tileSize, null);
             }
-    
+
             // Text
             g.setFont(new Font("Courier New", Font.BOLD, 24));
             g.drawString("Health: " + player.health + "/" + player.maxHealth, 5, 20);
-    
+
             if (!Weapon.bulletDebounce && keyPressed[KeyEvent.VK_V]) {
                 // This is to calculate the velocity
                 double startX = player.getxCoord() + gameFrame.tileSize / 2.0;
                 double startY = player.getyCoord() + gameFrame.tileSize / 2.0;
-    
+
                 double dx = mouseMotionX - startX;
                 double dy = mouseMotionY - startY;
                 double distance = Math.sqrt(dx * dx + dy * dy);
-    
+
                 if (distance > 0) {
                     double speed = 8.0;
                     double vx = (dx / distance) * speed;
                     double vy = (dy / distance) * speed;
-    
+
                     // Store things for new bullet
                     bullets.add(weapon.bullet);
                     bulletX.add(startX);
                     bulletY.add(startY);
                     bulletVX.add(vx);
                     bulletVY.add(vy);
-    
+
                     Thread newSleeperThread = new Thread(new Sleeper(200));
                     newSleeperThread.start();
                 }
@@ -225,7 +225,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                     bulletVY.remove(i);
                 }
             }
-    
+
             if (player.playerRect().intersects(enemy.enemyRect())) {
                 if (!Enemy.attackDebounce && enemy.health > 0) {
                     player.health -= enemy.attack;
@@ -233,7 +233,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                     sleeperThreadEnemy.start(); // 1s
                 }
             }
-    
+
             enemy.move();
             // Key interactions
             if (keyPressed[KeyEvent.VK_A]) {

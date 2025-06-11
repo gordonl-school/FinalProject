@@ -25,13 +25,13 @@ public class Shop {
         currentShopItems.clear();
 
         ShopItem healthBoost = new ShopItem("Health Boost", "+50 Health", 7, 50);
-        ShopItem maxHealthBoost = new ShopItem("Max Health Boost", "+50 Max Health", 20, 50);
+        ShopItem maxHealthBoost = new ShopItem("Max Health Boost", "+50 Max Health", 14, 50);
         ShopItem damageUpgrade = new ShopItem("Damage Upgrade", "+10 Damage", 15, 10);
         ShopItem speedBoost = new ShopItem("Speed Boost", "+1 Movement Speed", 15, 1);
         ShopItem defense = new ShopItem("Defense Boost", "+5 Defense", 10, 5);
         ShopItem fireRate = new ShopItem("Fire Rate Boost", "+.02 Fire Rate", 20, 20);
         ShopItem bulletSpeed = new ShopItem("Bullet Speed Boost", "+1 Bullet Speed", 15, 1);
-        ShopItem gemMultiplier = new ShopItem("Gem Multiplier", "20% Extra Gems", 30, .3);
+        ShopItem gemMultiplier = new ShopItem("Gem Multiplier", "20% Extra Gems", 30, 1.2);
 
 
         for (int i = 0; i < 3; i++) {
@@ -127,8 +127,8 @@ public class Shop {
         g.setFont(new Font("Arial", Font.BOLD, 15));
         g.setColor(Color.YELLOW);
         g.drawString(("Cost " + currentShopItems.getFirst().cost + " Gems"), 60, 440);
-        g.drawString(("Cost " + currentShopItems.getFirst().cost + " Gems"), 260, 440);
-        g.drawString(("Cost " + currentShopItems.getFirst().cost + " Gems"), 460, 440);
+        g.drawString(("Cost " + currentShopItems.get(1).cost + " Gems"), 260, 440);
+        g.drawString(("Cost " + currentShopItems.get(2).cost + " Gems"), 460, 440);
 
         for (int i = 0; i < currentShopItems.size(); i++) {
             ShopItem item = currentShopItems.get(i);
@@ -193,7 +193,7 @@ public class Shop {
                 gamePanel.bulletSpeed += item.upgradeValue;
                 break;
             case "Gem Multiplier":
-                gamePanel.gemMultiplier += item.upgradeValue;
+                gamePanel.gemMultiplier *= item.upgradeValue;
                 break;
         }
     }

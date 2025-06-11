@@ -32,10 +32,17 @@ public class GameFunction {
         int wave = gamePanel.waves;
         double health = 100 + (300 - 100) * ((wave - 1) / 19.0); // This will go from 100 health starting to 300 health by wave 20 (I think?)
         double attack = 5 + (30 - 5) * ((wave - 1) / 19.0); // This will go from 5 attack starting to 30 attack by wave 20 (I think?)
-
+        int movement = 2;
+        if (wave >= 9) {
+            movement = 3;
+        }
+        if (wave >= 18) {
+            movement = 4;
+        }
         for (int i = 0; i < gamePanel.enemies.size(); i++) {
             enemy.setHealth((int) health);
             enemy.attack = (int) attack;
+            enemy.setSPEED(movement);
         }
     }
     public Rectangle coinRect() {

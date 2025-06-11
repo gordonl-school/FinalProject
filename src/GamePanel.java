@@ -157,7 +157,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         gameGoing = true;
         player = new Player(gameFrame, this, enemy, weapon, animationController);
         tileM = new TileManager(this, gameFrame, player, enemy);
-        enemy = new Enemy(player, animationController, 100, 5);
+        enemy = new Enemy(player, animationController, 100, 5, 2);
         shop = new Shop(this, player, weapon);
         gameFunction = new GameFunction(enemy, this);
 
@@ -179,8 +179,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         bounds = 999999;
         mouseMotionX = 0;
         mouseMotionY = 0;
-        gems = 100;
-        rerollAmount = 1;
+        gems = 20;
+        rerollAmount = 0;
         rerollPrice = 3;
 
         transform = new AffineTransform();
@@ -227,9 +227,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 break;
             case GAME_OVER:
                 if (numTimes == 21) {
-                    drawEndScreen(g, 1);
+                    drawEndScreen(g, g2, 1);
                 } else {
-                    drawEndScreen(g, 0);
+                    drawEndScreen(g, g2, 0);
                 }
                 break;
         }
@@ -267,9 +267,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         g.setFont(new Font("Courier New", Font.BOLD, 24));
         g.drawString("Health: " + player.health + "/" + player.maxHealth, 5, 20);
         g.drawString("Enemies: " + enemies.size(), 5, 50);
-        g.drawString("Next Wave's Enemies: " + (int)(1.947 * (numTimes + 1) + 1.05), 5, 80);
-        g.drawString("Enemies Health: " + enemy.getHealth(), 5, 110);
-        g.drawString("Enemies Attack: " + enemy.attack, 5, 140);
+//        g.drawString("Next Wave's Enemies: " + (int)(1.947 * (numTimes + 1) + 1.05), 5, 80);
 
         g.drawString("Wave " + numTimes + "/20", 650, 20);
         g.drawString("Gems: " + Math.round(gems * 10.0) / 10.0, 350, 20);
@@ -337,6 +335,14 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         }
         // Key interactions
         if (currentState == GameState.PLAYING) {
+
+            boolean movingDiagonally = (keyPressed[KeyEvent.VK_A] || keyPressed[KeyEvent.VK_D]) && (keyPressed[KeyEvent.VK_W] || keyPressed[KeyEvent.VK_S]);
+
+            if (movingDiagonally) {
+                player.setMOVE_AMOUNT((int) (movementSpeed * 0.707));
+            } else {
+                player.setMOVE_AMOUNT(movementSpeed);
+            }
             if (keyPressed[KeyEvent.VK_A]) {
                 if (player.getxCoord() > 0) {
                     player.moveLeft();
@@ -395,7 +401,15 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         g.drawString("Bullet Speed: " + bulletSpeed, 610, 470);
         g.drawString("Gem Multi: " + Math.round(gemMultiplier * 100.0) / 100.0, 610, 490);
 
-        g.drawString("Reroll Price: " + rerollPrice, 30, 590);
+        g.drawString("Enemies Health: " + enemy.trackerHealth, 560, 580);
+        g.drawString("Enemies Attack: " + enemy.attack, 560, 610);
+        g.drawString("Enemies Movement: " + enemy.getSPEED(), 560, 640);
+
+        if (rerollAmount == 0) {
+            g.drawString("Reroll Price: FREE", 30, 590);
+        } else {
+            g.drawString("Reroll Price: " + rerollPrice, 30, 590);
+        }
 
         shop.drawShop(g, gems, shopButtons);
 
@@ -418,17 +432,35 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         tileM.draw(g2);
         g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
     }
-    private void drawEndScreen(Graphics g, int scenario) {
+    private void drawEndScreen(Graphics g, Graphics2D g2, int scenario) {
         if (scenario == 1) {
+            // GAME Background (irrelevant, for looks)
+            tileM.draw(g2);
+            g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
+            g.drawImage(weapon.gun, weapon.getGunCoordX(), weapon.getGunCoordY(), null);
+            for (int i = 0; i < coins.size(); i++) {
+                GameFunction currentCoin = coins.get(i);
+                g.drawImage(gameFunction.coin, currentCoin.coinCoordX, currentCoin.coinCoordY, null);
+            }
+            g.setColor(new Color(34,139,34, 80));
+            g.fillRect(0,0, gameFrame.screenWidth, gameFrame.screenHeight);
             g.setFont(new Font("Times New Roman", Font.BOLD, 36));
             g.drawString("You win!", 275, 350);
         } else {
+            // GAME Background (irrelevant, for looks)
+            tileM.draw(g2);
+            g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
+            g.drawImage(weapon.gun, weapon.getGunCoordX(), weapon.getGunCoordY(), null);
+            for (int i = 0; i < coins.size(); i++) {
+                GameFunction currentCoin = coins.get(i);
+                g.drawImage(gameFunction.coin, currentCoin.coinCoordX, currentCoin.coinCoordY, null);
+            }
+            g.setColor(new Color(220,20,60, 80));
+            g.fillRect(0,0, gameFrame.screenWidth, gameFrame.screenHeight);
             g.setFont(new Font("Times New Roman", Font.BOLD, 36));
             g.drawString("Game Over!", 275, 350);
         }
     }
-
-
 
     @Override
     public void actionPerformed (ActionEvent e) {
@@ -448,9 +480,16 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
             int waves = numTimes;
             double health = 100 + (300 - 100) * ((waves - 1) / 19.0); // This will go from 100 health starting to 300 health by wave 20 (I think?)
             double attack = 5 + (30 - 5) * ((waves - 1) / 19.0); // This will go from 5 attack starting to 30 attack by wave 20 (I think?)
+            int movement = 2;
+            if (waves >= 9) {
+                movement = 3;
+            }
+            if (waves >= 18) {
+                movement = 4;
+            }
 
             while (i < (int)(1.947 * numTimes + 1.05) && newWave && attempts < 100) {
-                enemy = new Enemy(player, animationController, (int) health, (int) attack);
+                enemy = new Enemy(player, animationController, (int) health, (int) attack, movement);
                 int randomX = random.nextInt(maxX - minX) + minX;
                 int randomY = random.nextInt(maxY - minY) + minY;
                 attempts++;
@@ -466,6 +505,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
             enemyTimer.stop();
         }
 
+        if (numTimes >= 21) {
+            waveTimer.stop();
+            enemyTimer.stop();
+            newWave = false;
+            currentState = GameState.GAME_OVER;
+        }
+
         if (sender == start) {
             started = true;
             currentState = GameState.PLAYING;
@@ -479,10 +525,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
             currentState = GameState.PLAYING;
             newWave = true;
             enemyTimer.start();
-            numTimes++; // Need one for this if the user presses continue
             waves++; // Tracker
             gameFunction.updateEnemy();
-            rerollAmount = 1;
+//            numTimes++; // Need one for this if the user presses continue
+
+            rerollAmount = 0;
             rerollPrice = 3 + (waves - 1) / 2;
         }
 
@@ -494,35 +541,40 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 currentState = GameState.PLAYING;
                 newWave = true;
                 enemyTimer.start();
-                numTimes++; // Need one for this if user waits till time runs out
+//                numTimes++; // Need one for this if user waits till time runs out
                 waves++; // Tracker
                 gameFunction.updateEnemy();
-                rerollAmount = 1;
+                rerollAmount = 0;
                 rerollPrice = 3 + (waves - 1) / 2;
             }
         }
 
         if (currentState == GameState.PLAYING && enemies != null && enemies.isEmpty() && !newWave) {
-            currentState = GameState.WAVE_BREAK;
-            waveTimerPause = 60;
-            shop.generateShopItems();
-            assert waveTimer != null;
-            waveTimer.start();
-        }
-        if (numTimes >= 21) {
-            waveTimer.stop();
-            enemyTimer.stop();
-            newWave = false;
-            currentState = GameState.GAME_OVER;
+            numTimes++; // Need one for this if the user presses continue
+            if (numTimes >= 21) {
+                waveTimer.stop();
+                enemyTimer.stop();
+                newWave = false;
+                currentState = GameState.GAME_OVER;
+            } else {
+                currentState = GameState.WAVE_BREAK;
+                waveTimerPause = 60;
+                shop.generateShopItems();
+                assert waveTimer != null;
+                waveTimer.start();
+            }
         }
 
         if (sender == rerollButton) {
-            if (rerollPrice < gems) {
+            if (rerollAmount == 0) {
+                shop.generateShopItems();
+                rerollAmount += 1;
+            } else if (rerollPrice < gems) {
                 shop.generateShopItems();
                 gems -= rerollPrice;
+                rerollAmount += 1;
+                rerollPrice = (int)(rerollPrice * Math.pow(1.5, rerollAmount - 1));
             }
-            rerollAmount += 1;
-            rerollPrice = (int)(rerollPrice * Math.pow(1.5, rerollAmount - 1));
         }
 
         if (sender == shopButton1) {

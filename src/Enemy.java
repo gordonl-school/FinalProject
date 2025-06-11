@@ -16,7 +16,7 @@ public class Enemy {
     private AnimationController animationController;
 
     // Enemy Stats
-    private final int SPEED = 2;
+    private int SPEED = 2;
 
     int attack;
     private int health;
@@ -30,7 +30,9 @@ public class Enemy {
 
     static boolean attackDebounce;
 
-    public Enemy(Player player, AnimationController controller, int health, int attack) {
+    int trackerHealth;
+
+    public Enemy(Player player, AnimationController controller, int health, int attack, int SPEED) {
         // Cords
         animationController = controller;
         xCordE = 100;
@@ -39,6 +41,8 @@ public class Enemy {
         // Enemy Stats
         this.attack = attack; // 5 start
         this.health = health; // 100 start
+        this.SPEED = SPEED; // 2 start
+        trackerHealth = health;
 
         playerReference = player;
         direction = Direction.RIGHT;
@@ -62,6 +66,14 @@ public class Enemy {
         }
         animation = new Animation(images);
         animationController.addAnimation(animation);
+    }
+
+    public int getSPEED() {
+        return SPEED;
+    }
+
+    public void setSPEED(int SPEED) {
+        this.SPEED = SPEED;
     }
 
     public void killEnemy() {

@@ -139,7 +139,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         // Make use of the timer
         animationController = new AnimationController(50);
         timer = new Timer(16, this);
-        enemyTimer = new Timer((int)((1.0 - (waves - 1) * (0.75 / 19.0)) * 1000), this); // Spawns enemies every 1s but down to every .25s at wave 20
+        enemyTimer = new Timer((int)((1.0 - (waves - 1) * (0.75 / 19.0)) * .75 * 1000), this); // Spawns enemies every 1s but down to every .25s at wave 20
         waveTimer = new Timer(1000, this);
 
         timer.start();
@@ -660,7 +660,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
             }
         }
 
-        if (currentState == GameState.PLAYING && enemies != null && enemies.isEmpty() && !newWave) {
+        if (currentState == GameState.PLAYING && enemies != null && enemies.isEmpty() && !newWave && enemiesSpawned >= enemyTrack) {
             numTimes++; // Need one for this if the user presses continue
             if (numTimes >= 21) {
                 waveTimer.stop();
@@ -684,7 +684,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 shop.generateShopItems();
                 gems -= rerollPrice;
                 rerollAmount += 1;
-                rerollPrice = (int)(rerollPrice * Math.pow(1.5, rerollAmount - 1));
+                rerollPrice = (int)(rerollPrice * Math.pow(1.3, rerollAmount - 1));
             }
         }
 

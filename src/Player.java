@@ -17,8 +17,10 @@ public class Player {
     private Animation animationUp;
     private Animation animationRight;
     private Animation animationLeft;
+    private Animation animationIdle;
     private Direction direction;
     private AnimationController animationController;
+    private boolean isMoving;
 
     // Player Stats
     private int xCoord;
@@ -33,12 +35,23 @@ public class Player {
         tileManager = new TileManager(gamePanel, gameFrame, this, enemy);
         this.weapon = weapon;
         // Player Stats
-        health = 200;
-        maxHealth = 200;
+        health = 100;
+        maxHealth = 100;
 
         direction = Direction.DOWN;
         xCoord = 393;
         yCoord = 324;
+        isMoving = false;
+
+        ArrayList<BufferedImage> idleImages = new ArrayList<>();
+        //Idle
+        try {
+            idleImages.add(ImageIO.read(new File("src/PlayerSprites/down001.png")));
+        } catch (IOException e) {
+            System.out.println("Error loading idle animation: " + e.getMessage());
+        }
+        animationIdle = new Animation(idleImages);
+        animationController.addAnimation(animationIdle);
 
         // Down Loading Animation
         ArrayList<BufferedImage> images = new ArrayList<>();
@@ -107,24 +120,29 @@ public class Player {
         direction = Direction.RIGHT;
         xCoord += MOVE_AMOUNT;
         weapon.gunCoordX += MOVE_AMOUNT;
+        isMoving = true;
     }
     public void moveLeft() {
         direction = Direction.LEFT;
         xCoord -= MOVE_AMOUNT;
         weapon.gunCoordX -= MOVE_AMOUNT;
-
+        isMoving = true;
     }
     public void moveUp() {
         direction = Direction.UP;
         yCoord -= MOVE_AMOUNT;
         weapon.gunCoordY -= MOVE_AMOUNT;
-
+        isMoving = true;
     }
     public void moveDown() {
         direction = Direction.DOWN;
         yCoord += MOVE_AMOUNT;
         weapon.gunCoordY += MOVE_AMOUNT;
+        isMoving = true;
+    }
 
+    public void stopMoving() {
+        isMoving = false;
     }
 
 
@@ -155,6 +173,9 @@ public class Player {
 //    }
 
     public BufferedImage getPlayerImage() {
+        if (!isMoving) {
+            return animationIdle.getActiveFrame();
+        }
         switch (direction) {
             case UP -> { return animationUp.getActiveFrame(); }
             case DOWN -> { return animationDown.getActiveFrame(); }

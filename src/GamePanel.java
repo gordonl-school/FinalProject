@@ -88,8 +88,12 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     private Timer waveTimer;
     private int waveTimerPause;
     private boolean waveBreak;
+    private int enemyTrack = 0;
+    private int enemiesSpawned = 0;
+    private long lastShotTime = 0;
     int rerollAmount;
     int rerollPrice;
+
 
     // Shop Buffs
     double gems;
@@ -135,7 +139,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         // Make use of the timer
         animationController = new AnimationController(50);
         timer = new Timer(16, this);
-        enemyTimer = new Timer(2000, this);
+        enemyTimer = new Timer((int)((1.0 - (waves - 1) * (0.75 / 19.0)) * 1000), this); // Spawns enemies every 1s but down to every .25s at wave 20
         waveTimer = new Timer(1000, this);
 
         timer.start();
@@ -179,7 +183,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         bounds = 999999;
         mouseMotionX = 0;
         mouseMotionY = 0;
-        gems = 20;
+        gems = 30;
         rerollAmount = 0;
         rerollPrice = 3;
 
@@ -272,7 +276,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         g.drawString("Wave " + numTimes + "/20", 650, 20);
         g.drawString("Gems: " + Math.round(gems * 10.0) / 10.0, 350, 20);
 
-        if (!Weapon.bulletDebounce && mousePressed) {
+        if (mousePressed && System.currentTimeMillis() - lastShotTime >= fireRate) {
+
+            // Store when the last time shot was
+            lastShotTime = System.currentTimeMillis();
+
             // This is to calculate the velocity
             double startX = player.getxCoord() + gameFrame.tileSize / 2.0;
             double startY = player.getyCoord() + gameFrame.tileSize / 2.0;
@@ -292,8 +300,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 bulletVX.add(vx);
                 bulletVY.add(vy);
 
-                Thread newSleeperThread = new Thread(new Sleeper(fireRate));
-                newSleeperThread.start();
+//                Thread newSleeperThread = new Thread(new Sleeper(fireRate));
+//                newSleeperThread.start();
             }
         }
         for (int i = 0; i < bullets.size(); i++) {
@@ -468,41 +476,143 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         if (sender == timer) {
             repaint();
         }
-        if (sender == enemyTimer && currentState == GameState.PLAYING && newWave) {
-            int minX = 0;
-            int maxX = 16 * 48;
-            int minY = 0;
-            int maxY = 48 * 17;
-            int i = 0;
-            int attempts = 0;
-            Random random = new Random();
+//        if (sender == enemyTimer && currentState == GameState.PLAYING) {
+//            if (newWave) {
+//                enemyTrack = (int)(1.947 * numTimes + 1.05);
+//                enemiesSpawned = 0;
+//                newWave = false;
+//            }
+//
+//            if (enemiesSpawned < enemyTrack) {
+//=                enemiesSpawned++;
+//
+//                if (enemiesSpawned >= enemyTrack) {
+//                    enemyTimer.stop();
+//                }
+//            }
+//        }
 
-            int waves = numTimes;
-            double health = 100 + (300 - 100) * ((waves - 1) / 19.0); // This will go from 100 health starting to 300 health by wave 20 (I think?)
-            double attack = 5 + (30 - 5) * ((waves - 1) / 19.0); // This will go from 5 attack starting to 30 attack by wave 20 (I think?)
-            int movement = 2;
-            if (waves >= 9) {
-                movement = 3;
+        if (sender == enemyTimer && currentState == GameState.PLAYING) {
+            if (newWave) {
+//                enemyTrack = (int)(1.947 * numTimes + 1.05);
+                switch (numTimes) {
+                    case 1:
+                        enemyTrack = 5;
+                        break;
+                    case 2:
+                        enemyTrack = 7;
+                        break;
+                    case 3:
+                        enemyTrack = 10;
+                        break;
+                    case 4:
+                        enemyTrack = 8;
+                        break;
+                    case 5:
+                        enemyTrack = 13;
+                        break;
+                    case 6:
+                        enemyTrack = 20;
+                        break;
+                    case 7:
+                        enemyTrack = 14;
+                        break;
+                    case 8:
+                        enemyTrack = 18;
+                        break;
+                    case 9:
+                        enemyTrack = 22;
+                        break;
+                    case 10:
+                        enemyTrack = 24;
+                        break;
+                    case 11:
+                        enemyTrack = 28;
+                        break;
+                    case 12:
+                        enemyTrack = 15;
+                        break;
+                    case 13:
+                        enemyTrack = 37;
+                        break;
+                    case 14:
+                        enemyTrack = 25;
+                        break;
+                    case 15:
+                        enemyTrack = 30;
+                        break;
+                    case 16:
+                        enemyTrack = 26;
+                        break;
+                    case 17:
+                        enemyTrack = 40;
+                        break;
+                    case 18:
+                        enemyTrack = 31;
+                        break;
+                    case 19:
+                        enemyTrack = 35;
+                        break;
+                    case 20:
+                        enemyTrack = 50;
+                        break;
+                    default:
+                        enemyTrack = (int) (1.947 * numTimes + 1.05);
+                        break;
+                }
+                enemiesSpawned = 0;
+                newWave = false;
             }
-            if (waves >= 18) {
-                movement = 4;
-            }
+            if (enemiesSpawned < enemyTrack) {
+                int minX = 0;
+                int maxX = 16 * 48;
+                int minY = 0;
+                int maxY = 48 * 17;
+                int i = 0;
+                int attempts = 0;
+                Random random = new Random();
 
-            while (i < (int)(1.947 * numTimes + 1.05) && newWave && attempts < 100) {
+                int waves = numTimes;
+                double health = 100 + (300 - 100) * ((waves - 1) / 19.0); // This will go from 100 health starting to 300 health by wave 20 (I think?)
+                double attack = 5 + (30 - 5) * ((waves - 1) / 19.0); // This will go from 5 attack starting to 30 attack by wave 20 (I think?)
+                int movement = 2;
+                if (waves >= 7) {
+                    movement = 3;
+                }
+                if (waves >= 14) {
+                    movement = 4;
+                }
+                if (waves >= 18) {
+                    movement = 5;
+                }
+
+//            while (i < (int)(1.947 * numTimes + 1.05) && newWave && attempts < 100) {
+//                enemy = new Enemy(player, animationController, (int) health, (int) attack, movement);
+//                int randomX = random.nextInt(maxX - minX) + minX;
+//                int randomY = random.nextInt(maxY - minY) + minY;
+//                attempts++;
+//
+//                enemy.setxCordE(randomX);
+//                enemy.setyCordE(randomY);
+//                enemies.add(enemy);
+//                i++;
+//            }
                 enemy = new Enemy(player, animationController, (int) health, (int) attack, movement);
                 int randomX = random.nextInt(maxX - minX) + minX;
                 int randomY = random.nextInt(maxY - minY) + minY;
-                attempts++;
-                if (Math.abs(randomX - player.getxCoord()) < 100 || Math.abs(randomY - player.getyCoord()) < 100) {
-                    continue;
+                while (Math.abs(randomX - player.getxCoord()) < 150 || Math.abs(randomY - player.getyCoord()) < 150) {
+                    randomX = random.nextInt(maxX - minX) + minX;
+                    randomY = random.nextInt(maxY - minY) + minY;
                 }
                 enemy.setxCordE(randomX);
                 enemy.setyCordE(randomY);
                 enemies.add(enemy);
-                i++;
+                enemiesSpawned++;
+//            newWave = false;
+                if (enemies.size() >= enemyTrack) {
+                    enemyTimer.stop();
+                }
             }
-            newWave = false;
-            enemyTimer.stop();
         }
 
         if (numTimes >= 21) {
@@ -528,7 +638,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
             waves++; // Tracker
             gameFunction.updateEnemy();
 //            numTimes++; // Need one for this if the user presses continue
-
+            enemiesSpawned = 0;
             rerollAmount = 0;
             rerollPrice = 3 + (waves - 1) / 2;
         }
@@ -545,6 +655,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 waves++; // Tracker
                 gameFunction.updateEnemy();
                 rerollAmount = 0;
+                enemiesSpawned = 0;
                 rerollPrice = 3 + (waves - 1) / 2;
             }
         }
@@ -643,6 +754,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     @Override
     public void keyReleased (KeyEvent e){
         keyPressed[e.getKeyCode()] = false;
+
+        if (!keyPressed[KeyEvent.VK_W] && !keyPressed[KeyEvent.VK_A] && !keyPressed[KeyEvent.VK_S] && !keyPressed[KeyEvent.VK_D]) {
+            player.stopMoving();
+        }
     }
 
     // MOUSE MOTION METHODS

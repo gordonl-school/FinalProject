@@ -46,21 +46,10 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     private Weapon weapon;
     private Enemy enemy1;
     private GameFunction gameFunction;
-
-    private static boolean timerPulse = false;
-    private boolean gameGoing;
-    private static int numTimes = 1;
-    private JButton start;
-    private boolean started = false;
-    private boolean newWave = true;
-    boolean mousePressed;
-
-
-    int bounds;
+    private Shop shop;
     private AnimationController animationController;
 
-    private ArrayList<Enemy> enemies;
-
+    ArrayList<Enemy> enemies;
     private ArrayList<BufferedImage> bullets;
     private ArrayList<Double> bulletX;
     private ArrayList<Double> bulletY;
@@ -68,30 +57,87 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
     private ArrayList<Double> bulletVY;
     private ArrayList<GameFunction> coins;
 
-    Thread sleeperThreadBullet;
-    Thread sleeperThreadEnemy;
+
+    private static boolean timerPulse = false;
+    private boolean gameGoing;
+    private static int numTimes = 1;
+    int waves = 1;
+    private JButton start;
+    private boolean started = false;
+    private boolean newWave = true;
+    boolean mousePressed;
+
+
+    int bounds;
 
     int mouseMotionX;
     int mouseMotionY;
-    int gems;
     AffineTransform transform;
-    boolean rotated = false;
+
+    private GameState currentState;
+
+    // Shop System
+    private JButton continueButton;
+    private JButton rerollButton;
+
+    private JButton shopButton1;
+    private JButton shopButton2;
+    private JButton shopButton3;
+    private JButton[] shopButtons;
+
+    private Timer waveTimer;
+    private int waveTimerPause;
+    private boolean waveBreak;
+    int rerollAmount;
+    int rerollPrice;
+
+    // Shop Buffs
+    double gems;
+    int defense;
+    int fireRate;
+    int movementSpeed;
+    double bulletSpeed;
+    double gemMultiplier;
 
 
-    // Elapsed time
-    // Current time
-    // Shoot time -> Last shoot time
-    // See if the difference is more than two hundreds
 
 
     public GamePanel(GameFrame gameFrame) {
         start = new JButton("Play!");
         start.addActionListener(this);
         add(start);
+
+        continueButton = new JButton("Continue");
+        continueButton.addActionListener(this);
+        rerollButton = new JButton("Reroll");
+        rerollButton.addActionListener(this);
+
+        shopButton1 = new JButton("Button 1");
+        shopButton1.addActionListener(this);
+        shopButton2 = new JButton("Button 2");
+        shopButton2.addActionListener(this);
+        shopButton3 = new JButton("Button 3");
+        shopButton3.addActionListener(this);
+
+        add(continueButton);
+        add(rerollButton);
+
+        add(shopButton1);
+        add(shopButton2);
+        add(shopButton3);
+
+        shopButtons = new JButton[3];
+        shopButtons[0] = shopButton1;
+        shopButtons[1] = shopButton2;
+        shopButtons[2] = shopButton3;
+
+
         // Make use of the timer
         animationController = new AnimationController(50);
-        timer = new Timer(2, this);
-        enemyTimer = new Timer(5000, this);
+        timer = new Timer(16, this);
+        enemyTimer = new Timer(2000, this);
+        waveTimer = new Timer(1000, this);
+
         timer.start();
         enemyTimer.start();
 //        enemyTimer = new Timer(10, this);
@@ -107,25 +153,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
         // Other Classes
         checker = new CollisionChecker(this);
-
         weapon = new Weapon();
-        gameFunction = new GameFunction();
         gameGoing = true;
-
         player = new Player(gameFrame, this, enemy, weapon, animationController);
         tileM = new TileManager(this, gameFrame, player, enemy);
-        enemies = new ArrayList<Enemy>();
-        enemy = new Enemy(player, animationController);
-        enemies.add(enemy);
-
-        this.gameFrame = gameFrame;
-
-
-        setFocusable(true);
-        requestFocusInWindow();
-
-        bounds = 999999;
-        enemies = new ArrayList<>();
+        enemy = new Enemy(player, animationController, 100, 5);
+        shop = new Shop(this, player, weapon);
+        gameFunction = new GameFunction(enemy, this);
 
         bullets = new ArrayList<>();
         bulletX = new ArrayList<>();
@@ -133,194 +167,383 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         bulletVX = new ArrayList<>();
         bulletVY = new ArrayList<>();
         coins = new ArrayList<>();
+        enemies = new ArrayList<Enemy>();
 
+        enemies.add(enemy);
+
+        this.gameFrame = gameFrame;
+
+        setFocusable(true);
+        requestFocusInWindow();
+
+        bounds = 999999;
         mouseMotionX = 0;
         mouseMotionY = 0;
-        gems = 0;
+        gems = 100;
+        rerollAmount = 1;
+        rerollPrice = 3;
 
         transform = new AffineTransform();
         mousePressed = false;
 
+        currentState = GameState.MENU;
+        waveTimerPause = 60;
+        waveBreak = false;
+
+        // Player stats
+        defense = 1;
+        movementSpeed = player.getMOVE_AMOUNT();
+        fireRate = 350;
+        bulletSpeed = 8.0;
+        gemMultiplier = 1.0;
+
         playMusic();
     }
-
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (player.getHealth() <= 0) {
-            gameGoing = false;
-        }
-
         Graphics2D g2 = (Graphics2D) g;
-        tileM.draw(g2);
-        if (started) {
-            start.setVisible(false);
-            if (gameGoing) {
-                tileM.draw(g2);
-                g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
-                g.drawImage(weapon.gun, weapon.getGunCoordX(), weapon.getGunCoordY(), null);
-
-                for (int i = 0; i < enemies.size(); i++) {
-                    Enemy currentEnemy = enemies.get(i);
-                    currentEnemy.move();
-
-                    if (currentEnemy.getxCordE() < player.getxCoord()) {
-                        currentEnemy.faceRight();
-                    } else {
-                        currentEnemy.faceLeft();
-                    }
-                    g.drawImage(currentEnemy.getEnemyImage(), currentEnemy.getxCordE(), currentEnemy.getyCordE(), currentEnemy.getWidth(), gameFrame.tileSize, null);
-                }
-
-                for (int i = 0; i < coins.size(); i++) {
-                    GameFunction currentCoin = coins.get(i);
-                    g.drawImage(gameFunction.coin, currentCoin.coinCoordX, currentCoin.coinCoordY, null);
-                    if (player.playerRect().intersects(currentCoin.coinRect())) {
-                        gems++;
-                        coins.remove(i);
-                        i--;
-                    }
-                }
-
-
-                // Text
-                g.setFont(new Font("Courier New", Font.BOLD, 24));
-                g.drawString("Health: " + player.health + "/" + player.maxHealth, 5, 20);
-                g.drawString("Enemies: " + enemies.size(), 5, 50);
-                g.drawString("Wave " + numTimes + "/20", 670, 20);
-                g.drawString("Gems: " + gems, 350, 20);
-                if (!Weapon.bulletDebounce && mousePressed) {
-                    // This is to calculate the velocity
-                    double startX = player.getxCoord() + gameFrame.tileSize / 2.0;
-                    double startY = player.getyCoord() + gameFrame.tileSize / 2.0;
-
-                    double dx = mouseMotionX - startX;
-                    double dy = mouseMotionY - startY;
-                    double distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance > 0) {
-                        double speed = 8.0;
-                        double vx = (dx / distance) * speed;
-                        double vy = (dy / distance) * speed;
-
-                        // Store things for new bullet
-                        bullets.add(weapon.bullet);
-                        bulletX.add(startX);
-                        bulletY.add(startY);
-                        bulletVX.add(vx);
-                        bulletVY.add(vy);
-
-                        Thread newSleeperThread = new Thread(new Sleeper(200));
-                        newSleeperThread.start();
-                    }
-                }
-                for (int i = 0; i < bullets.size(); i++) {
-                    bulletX.set(i, bulletX.get(i) + bulletVX.get(i));
-                    bulletY.set(i, bulletY.get(i) + bulletVY.get(i));
-                    g.drawImage(bullets.get(i), (int) Math.round(bulletX.get(i)), (int) Math.round(bulletY.get(i)), null);
-                }
-                for (int i = bullets.size() - 1; i >= 0; i--) {
-                    double x = bulletX.get(i);
-                    double y = bulletY.get(i);
-                    if (x < -100 || x > 1100 || y < -100 || y > 1100) {
-                        bullets.remove(i);
-                        bulletX.remove(i);
-                        bulletY.remove(i);
-                        bulletVX.remove(i);
-                        bulletVY.remove(i);
-                    }
-                }
-
-                checkBulletCollisions();
-
-
-                for (int i = enemies.size() - 1; i >= 0; i--) {
-                    Enemy currentEnemy = enemies.get(i);
-                    if (player.playerRect().intersects(currentEnemy.enemyRect())) {
-                        if (!Enemy.attackDebounce && currentEnemy.getHealth() > 0) {
-                            player.health -= currentEnemy.attack;
-                            Thread sleeperThread = new Thread(new Sleeper(1000));
-                            sleeperThread.start();
-                        }
-                    }
-                }
-                // Key interactions
-                if (keyPressed[KeyEvent.VK_A]) {
-                    if (player.getxCoord() > 0) {
-                        player.moveLeft();
-                    }
-                }
-                if (keyPressed[KeyEvent.VK_D]) {
-                    if (player.getxCoord() < gameFrame.screenWidth - 48) {
-                        player.moveRight();
-                    }
-                }
-                if (keyPressed[KeyEvent.VK_W]) {
-                    if (player.getyCoord() > 0) {
-                        player.moveUp();
-                    }
-                }
-                if (keyPressed[KeyEvent.VK_S]) {
-                    if (player.getyCoord() < gameFrame.screenHeight - 87) {
-                        player.moveDown();
-                    }
-                }
-                checker.checkTile(player);
-            } else {
-                if (numTimes == 21) {
-                    g.setFont(new Font("Times New Roman", Font.BOLD, 36));
-                    g.drawString("You win!", 275, 350);
+        removeAll(); // Removes everything from screen to make usre nothing stays
+        switch (currentState) {
+            case MENU:
+                drawMenu(g);
+                add(start);
+                break;
+            case PLAYING:
+                if (player.getHealth() <= 0) {
+                    currentState = GameState.GAME_OVER;
                 } else {
-                    g.setFont(new Font("Times New Roman", Font.BOLD, 36));
-                    g.drawString("Game Over!", 275, 350);
+                    drawGame(g, g2);
                 }
-            }
-        } else {
-            g.setFont(new Font("EB Garamond", Font.BOLD, 44));
-            g.drawString("Welcome to GD's Mow Down!", 85, 300);
-            g.setFont(new Font("EB Garamond", Font.BOLD, 14));
-            g.drawString("WASD to move, mouse click to shoot at enemies. Good luck!", 200, 350);
-            start.setSize(300, 100);
-            start.setFont(new Font("EB Garamond", Font.BOLD, 64));
-            start.setLocation(250, 375);
+                break;
+            case WAVE_BREAK:
+                drawWaveBreak(g, g2);
+                add(continueButton);
+                add(rerollButton);
+                add(shopButton1);
+                add(shopButton2);
+                add(shopButton3);
+                break;
+            case GAME_OVER:
+                if (numTimes == 21) {
+                    drawEndScreen(g, 1);
+                } else {
+                    drawEndScreen(g, 0);
+                }
+                break;
         }
     }
+
+    private void drawGame(Graphics g, Graphics2D g2) {
+        tileM.draw(g2);
+        g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
+        g.drawImage(weapon.gun, weapon.getGunCoordX(), weapon.getGunCoordY(), null);
+
+        for (int i = 0; i < enemies.size(); i++) {
+            Enemy currentEnemy = enemies.get(i);
+            currentEnemy.move();
+
+            if (currentEnemy.getxCordE() < player.getxCoord()) {
+                currentEnemy.faceRight();
+            } else {
+                currentEnemy.faceLeft();
+            }
+            g.drawImage(currentEnemy.getEnemyImage(), currentEnemy.getxCordE(), currentEnemy.getyCordE(), currentEnemy.getWidth(), gameFrame.tileSize, null);
+        }
+
+        for (int i = 0; i < coins.size(); i++) {
+            GameFunction currentCoin = coins.get(i);
+            g.drawImage(gameFunction.coin, currentCoin.coinCoordX, currentCoin.coinCoordY, null);
+            if (player.playerRect().intersects(currentCoin.coinRect())) {
+                gems += (gemMultiplier);
+                coins.remove(i);
+                i--;
+            }
+        }
+
+
+        // Text
+        g.setFont(new Font("Courier New", Font.BOLD, 24));
+        g.drawString("Health: " + player.health + "/" + player.maxHealth, 5, 20);
+        g.drawString("Enemies: " + enemies.size(), 5, 50);
+        g.drawString("Next Wave's Enemies: " + (int)(1.947 * (numTimes + 1) + 1.05), 5, 80);
+        g.drawString("Enemies Health: " + enemy.getHealth(), 5, 110);
+        g.drawString("Enemies Attack: " + enemy.attack, 5, 140);
+
+        g.drawString("Wave " + numTimes + "/20", 650, 20);
+        g.drawString("Gems: " + Math.round(gems * 10.0) / 10.0, 350, 20);
+
+        if (!Weapon.bulletDebounce && mousePressed) {
+            // This is to calculate the velocity
+            double startX = player.getxCoord() + gameFrame.tileSize / 2.0;
+            double startY = player.getyCoord() + gameFrame.tileSize / 2.0;
+
+            double dx = mouseMotionX - startX;
+            double dy = mouseMotionY - startY;
+            double distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance > 0) {
+                double vx = (dx / distance) * bulletSpeed;
+                double vy = (dy / distance) * bulletSpeed;
+
+                // Store things for new bullet
+                bullets.add(weapon.bullet);
+                bulletX.add(startX);
+                bulletY.add(startY);
+                bulletVX.add(vx);
+                bulletVY.add(vy);
+
+                Thread newSleeperThread = new Thread(new Sleeper(fireRate));
+                newSleeperThread.start();
+            }
+        }
+        for (int i = 0; i < bullets.size(); i++) {
+            bulletX.set(i, bulletX.get(i) + bulletVX.get(i));
+            bulletY.set(i, bulletY.get(i) + bulletVY.get(i));
+            g.drawImage(bullets.get(i), (int) Math.round(bulletX.get(i)), (int) Math.round(bulletY.get(i)), null);
+        }
+        for (int i = bullets.size() - 1; i >= 0; i--) {
+            double x = bulletX.get(i);
+            double y = bulletY.get(i);
+            if (x < -100 || x > 1100 || y < -100 || y > 1100) {
+                bullets.remove(i);
+                bulletX.remove(i);
+                bulletY.remove(i);
+                bulletVX.remove(i);
+                bulletVY.remove(i);
+            }
+        }
+
+        checkBulletCollisions();
+
+        for (int i = enemies.size() - 1; i >= 0; i--) {
+            Enemy currentEnemy = enemies.get(i);
+            if (player.playerRect().intersects(currentEnemy.enemyRect())) {
+                if (!Enemy.attackDebounce && currentEnemy.getHealth() > 0) {
+                    // CALCULATE DEFENSE
+                    double damageReduction = (defense - 1) * 0.01; // 1% damage reduction for every defense
+                    double damageMultiplier = 1.0 - damageReduction; // Reduction multi
+                    int finalDamage = (int) (currentEnemy.attack * damageMultiplier);
+                    if (finalDamage < 1) {
+                        finalDamage = 1;
+                    }
+                    player.health -= finalDamage;
+
+                    Thread sleeperThread = new Thread(new Sleeper(1000));
+                    sleeperThread.start();
+                }
+            }
+        }
+        // Key interactions
+        if (currentState == GameState.PLAYING) {
+            if (keyPressed[KeyEvent.VK_A]) {
+                if (player.getxCoord() > 0) {
+                    player.moveLeft();
+                }
+            }
+            if (keyPressed[KeyEvent.VK_D]) {
+                if (player.getxCoord() < gameFrame.screenWidth - 48) {
+                    player.moveRight();
+                }
+            }
+            if (keyPressed[KeyEvent.VK_W]) {
+                if (player.getyCoord() > 0) {
+                    player.moveUp();
+                }
+            }
+            if (keyPressed[KeyEvent.VK_S]) {
+                if (player.getyCoord() < gameFrame.screenHeight - 87) {
+                    player.moveDown();
+                }
+            }
+        }
+        checker.checkTile(player);
+    }
+    private void drawWaveBreak(Graphics g, Graphics2D g2) {
+
+        // GAME Background (irrelevant, for looks)
+        tileM.draw(g2);
+        g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
+        g.drawImage(weapon.gun, weapon.getGunCoordX(), weapon.getGunCoordY(), null);
+        for (int i = 0; i < coins.size(); i++) {
+            GameFunction currentCoin = coins.get(i);
+            g.drawImage(gameFunction.coin, currentCoin.coinCoordX, currentCoin.coinCoordY, null);
+        }
+
+        // THE ACTUAL SHOP BACKGROUND
+        g.setColor(new Color(0, 0, 0, 80));
+        g.fillRect(0,0, gameFrame.screenWidth, gameFrame.screenHeight);
+
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Times New Roman", Font.BOLD, 48));
+        g.drawString("Wave " + numTimes + " Complete!", 200, 60);
+
+        g.setFont(new Font("Times New Roman", Font.BOLD, 32));
+        g.setColor(Color.GREEN);
+        g.drawString("Gems: " + Math.round(gems * 10.0) / 10.0 ,610, 300);
+
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Times New Roman", Font.BOLD, 24));
+        g.drawString("Next wave in " + waveTimerPause + " seconds", 280, 90);
+        g.drawString("Health: " + player.health, 610, 350);
+        g.drawString("Max Health: " + player.maxHealth, 610, 370);
+        g.drawString("Damage: " + weapon.gunDamage, 610, 390);
+        g.drawString("Player Speed: " + movementSpeed, 610, 410);
+        g.drawString("Defense: " + defense, 610, 430);
+        g.drawString("Fire Rate: " + fireRate / 1000.0, 610, 450);
+        g.drawString("Bullet Speed: " + bulletSpeed, 610, 470);
+        g.drawString("Gem Multi: " + Math.round(gemMultiplier * 100.0) / 100.0, 610, 490);
+
+        g.drawString("Reroll Price: " + rerollPrice, 30, 590);
+
+        shop.drawShop(g, gems, shopButtons);
+
+        continueButton.setSize(200, 50);
+        rerollButton.setSize(150, 50);
+
+        rerollButton.setLocation(25, 600);
+        continueButton.setLocation(300, 660);
+    }
+    private void drawMenu(Graphics g) {
+        g.setFont(new Font("EB Garamond", Font.BOLD, 44));
+        g.drawString("Welcome to GD's Mow Down!", 85, 300);
+        g.setFont(new Font("EB Garamond", Font.BOLD, 14));
+        g.drawString("WASD to move, mouse click to shoot at enemies. Good luck!", 200, 350);
+        start.setSize(300, 100);
+        start.setFont(new Font("EB Garamond", Font.BOLD, 64));
+        start.setLocation(250, 375);
+    }
+    private void drawGameBG(Graphics g, Graphics2D g2) {
+        tileM.draw(g2);
+        g2.drawImage(player.getPlayerImage(), player.getxCoord(), player.getyCoord(), gameFrame.tileSize, gameFrame.tileSize, null);
+    }
+    private void drawEndScreen(Graphics g, int scenario) {
+        if (scenario == 1) {
+            g.setFont(new Font("Times New Roman", Font.BOLD, 36));
+            g.drawString("You win!", 275, 350);
+        } else {
+            g.setFont(new Font("Times New Roman", Font.BOLD, 36));
+            g.drawString("Game Over!", 275, 350);
+        }
+    }
+
+
+
     @Override
     public void actionPerformed (ActionEvent e) {
         Object sender = e.getSource();
         if (sender == timer) {
             repaint();
         }
-        if (sender == enemyTimer) {
+        if (sender == enemyTimer && currentState == GameState.PLAYING && newWave) {
             int minX = 0;
             int maxX = 16 * 48;
             int minY = 0;
             int maxY = 48 * 17;
             int i = 0;
+            int attempts = 0;
             Random random = new Random();
-            while (i < numTimes + (numTimes * 2) && newWave) {
-                enemy = new Enemy(player, animationController);
+
+            int waves = numTimes;
+            double health = 100 + (300 - 100) * ((waves - 1) / 19.0); // This will go from 100 health starting to 300 health by wave 20 (I think?)
+            double attack = 5 + (30 - 5) * ((waves - 1) / 19.0); // This will go from 5 attack starting to 30 attack by wave 20 (I think?)
+
+            while (i < (int)(1.947 * numTimes + 1.05) && newWave && attempts < 100) {
+                enemy = new Enemy(player, animationController, (int) health, (int) attack);
                 int randomX = random.nextInt(maxX - minX) + minX;
                 int randomY = random.nextInt(maxY - minY) + minY;
+                attempts++;
+                if (Math.abs(randomX - player.getxCoord()) < 100 || Math.abs(randomY - player.getyCoord()) < 100) {
+                    continue;
+                }
                 enemy.setxCordE(randomX);
                 enemy.setyCordE(randomY);
                 enemies.add(enemy);
                 i++;
             }
             newWave = false;
-            if (enemies.isEmpty()) {
-                newWave = true;
-                numTimes++;
-            }
-            if (numTimes == 21) {
-                newWave = false;
-                gameGoing = false;
-            }
+            enemyTimer.stop();
         }
+
         if (sender == start) {
             started = true;
+            currentState = GameState.PLAYING;
+            newWave = true;
+            enemyTimer.start();
         }
+
+        if (sender == continueButton) {
+            waveTimer.stop();
+            waveTimerPause = 60;
+            currentState = GameState.PLAYING;
+            newWave = true;
+            enemyTimer.start();
+            numTimes++; // Need one for this if the user presses continue
+            waves++; // Tracker
+            gameFunction.updateEnemy();
+            rerollAmount = 1;
+            rerollPrice = 3 + (waves - 1) / 2;
+        }
+
+        if (sender == waveTimer && currentState == GameState.WAVE_BREAK) {
+            waveTimerPause--;
+            if (waveTimerPause <= 0) {
+                waveTimer.stop();
+                waveTimerPause = 60;
+                currentState = GameState.PLAYING;
+                newWave = true;
+                enemyTimer.start();
+                numTimes++; // Need one for this if user waits till time runs out
+                waves++; // Tracker
+                gameFunction.updateEnemy();
+                rerollAmount = 1;
+                rerollPrice = 3 + (waves - 1) / 2;
+            }
+        }
+
+        if (currentState == GameState.PLAYING && enemies != null && enemies.isEmpty() && !newWave) {
+            currentState = GameState.WAVE_BREAK;
+            waveTimerPause = 60;
+            shop.generateShopItems();
+            assert waveTimer != null;
+            waveTimer.start();
+        }
+        if (numTimes >= 21) {
+            waveTimer.stop();
+            enemyTimer.stop();
+            newWave = false;
+            currentState = GameState.GAME_OVER;
+        }
+
+        if (sender == rerollButton) {
+            if (rerollPrice < gems) {
+                shop.generateShopItems();
+                gems -= rerollPrice;
+            }
+            rerollAmount += 1;
+            rerollPrice = (int)(rerollPrice * Math.pow(1.5, rerollAmount - 1));
+        }
+
+        if (sender == shopButton1) {
+            boolean bought = shop.handlePurchase(0, gems);
+            if (bought) {
+                shopButton1.setEnabled(false);
+            }
+        }
+        if (sender == shopButton2) {
+            boolean bought = shop.handlePurchase(1, gems);
+            if (bought) {
+                shopButton2.setEnabled(false);
+            }
+        }
+        if (sender == shopButton3) {
+            boolean bought = shop.handlePurchase(2, gems);
+            if (bought) {
+                shopButton3.setEnabled(false);
+            }
+        }
+
     }
 
     private void checkBulletCollisions() {
@@ -336,7 +559,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 Enemy currentEnemy = enemies.get(j);
                 if (bulletRect.intersects(currentEnemy.enemyRect())) {
                     currentEnemy.setHealth(currentEnemy.getHealth() - weapon.gunDamage);
-                    System.out.println("Hit\nEnemy Health: " + currentEnemy.getHealth());
+//                    System.out.println("Hit\nEnemy Health: " + currentEnemy.getHealth());
                     bullets.remove(i);
                     bulletX.remove(i);
                     bulletY.remove(i);
@@ -344,8 +567,8 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                     bulletVY.remove(i);
 
                     if (currentEnemy.getHealth() <= 0) {
-                        System.out.println("Enemy dead");
-                        GameFunction coin = new GameFunction();
+//                        System.out.println("Enemy dead");
+                        GameFunction coin = new GameFunction(enemy, this);
                         coin.setCoinCoordX(currentEnemy.xCordE);
                         coin.setCoinCoordY(currentEnemy.yCordE);
                         coins.add(coin);

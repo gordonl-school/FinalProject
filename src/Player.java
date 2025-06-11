@@ -11,7 +11,7 @@ public class Player {
     TileManager tileManager;
     Weapon weapon;
 
-    private final int MOVE_AMOUNT = 4;
+    private int MOVE_AMOUNT = 5;
     private BufferedImage image;
     private Animation animationDown;
     private Animation animationUp;
@@ -33,8 +33,8 @@ public class Player {
         tileManager = new TileManager(gamePanel, gameFrame, this, enemy);
         this.weapon = weapon;
         // Player Stats
-        health = 100;
-        maxHealth = 100;
+        health = 200;
+        maxHealth = 200;
 
         direction = Direction.DOWN;
         xCoord = 393;
@@ -136,7 +136,14 @@ public class Player {
         return yCoord;
     }
 
-//    public int getScreenX() {return screenX;}
+    public int getMOVE_AMOUNT() {
+        return MOVE_AMOUNT;
+    }
+    public void setMOVE_AMOUNT(int MOVE_AMOUNT) {
+        this.MOVE_AMOUNT = MOVE_AMOUNT;
+    }
+
+    //    public int getScreenX() {return screenX;}
 //    public int getScreenY() {return screenY;}
 
 

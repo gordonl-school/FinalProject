@@ -30,15 +30,15 @@ public class Enemy {
 
     static boolean attackDebounce;
 
-    public Enemy(Player player, AnimationController controller) {
+    public Enemy(Player player, AnimationController controller, int health, int attack) {
         // Cords
         animationController = controller;
         xCordE = 100;
         yCordE = 100;
 
         // Enemy Stats
-        attack = 5;
-        health = 100;
+        this.attack = attack; // 5 start
+        this.health = health; // 100 start
 
         playerReference = player;
         direction = Direction.RIGHT;

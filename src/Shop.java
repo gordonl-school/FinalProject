@@ -30,7 +30,7 @@ public class Shop {
         ShopItem speedBoost = new ShopItem("Speed Boost", "+1 Movement Speed", 10, 1);
         ShopItem defense = new ShopItem("Defense Boost", "+5 Defense", 8, 5);
         ShopItem fireRate = new ShopItem("Fire Rate Boost", "+.02 Fire Rate", 12, 20);
-        ShopItem bulletSpeed = new ShopItem("Bullet Speed Boost", "+1 Bullet Speed", 18, 1);
+        ShopItem bulletSpeed = new ShopItem("Bullet Speed Boost", "+1 Bullet Speed", 10, 1);
         ShopItem gemMultiplier = new ShopItem("Gem Multiplier", "20% Extra Gems", 20, 1.2);
 
         for (int i = 0; i < 3; i++) {

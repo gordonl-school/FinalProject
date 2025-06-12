@@ -138,7 +138,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
 
         // Make use of the timer
         animationController = new AnimationController(50);
-        timer = new Timer(16, this);
+        timer = new Timer(8, this);
         enemyTimer = new Timer((int)((1.0 - (waves - 1) * (0.75 / 19.0)) * .7 * 1000), this); // Spawns enemies every 1s but down to every .25s at wave 20 (30% faster now)
         waveTimer = new Timer(1000, this);
 

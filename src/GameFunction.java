@@ -42,6 +42,9 @@ public class GameFunction {
         if (wave >= 18) {
             movement = 5;
         }
+        if (wave == 20) {
+            movement = 6;
+        }
         for (int i = 0; i < gamePanel.enemies.size(); i++) {
             enemy.setHealth((int) health);
             enemy.attack = (int) attack;

@@ -139,7 +139,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
         // Make use of the timer
         animationController = new AnimationController(50);
         timer = new Timer(16, this);
-        enemyTimer = new Timer((int)((1.0 - (waves - 1) * (0.75 / 19.0)) * .75 * 1000), this); // Spawns enemies every 1s but down to every .25s at wave 20
+        enemyTimer = new Timer((int)((1.0 - (waves - 1) * (0.75 / 19.0)) * .7 * 1000), this); // Spawns enemies every 1s but down to every .25s at wave 20 (30% faster now)
         waveTimer = new Timer(1000, this);
 
         timer.start();
@@ -545,16 +545,16 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                         enemyTrack = 26;
                         break;
                     case 17:
-                        enemyTrack = 40;
+                        enemyTrack = 43;
                         break;
                     case 18:
                         enemyTrack = 31;
                         break;
                     case 19:
-                        enemyTrack = 35;
+                        enemyTrack = 60;
                         break;
                     case 20:
-                        enemyTrack = 50;
+                        enemyTrack = 73;
                         break;
                     default:
                         enemyTrack = (int) (1.947 * numTimes + 1.05);
@@ -584,6 +584,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                 }
                 if (waves >= 18) {
                     movement = 5;
+                }
+                if (waves == 20) {
+                    movement = 6;
                 }
 
 //            while (i < (int)(1.947 * numTimes + 1.05) && newWave && attempts < 100) {

@@ -24,13 +24,13 @@ public class Shop {
     public void generateShopItems() {
         currentShopItems.clear();
 
-        ShopItem healthBoost = new ShopItem("Health Boost", "+50 Health", 5, 50);
+        ShopItem healthBoost = new ShopItem("Health Boost", "+60 Health", 5, 60);
         ShopItem maxHealthBoost = new ShopItem("Max Health Boost", "+50 Max Health", 10, 50);
-        ShopItem damageUpgrade = new ShopItem("Damage Upgrade", "+10 Damage", 10, 10);
+        ShopItem damageUpgrade = new ShopItem("Damage Upgrade", "+10 Damage", 8, 10);
         ShopItem speedBoost = new ShopItem("Speed Boost", "+1 Movement Speed", 10, 1);
-        ShopItem defense = new ShopItem("Defense Boost", "+5 Defense", 10, 5);
-        ShopItem fireRate = new ShopItem("Fire Rate Boost", "+.02 Fire Rate", 13, 20);
-        ShopItem bulletSpeed = new ShopItem("Bullet Speed Boost", "+1 Bullet Speed", 13, 1);
+        ShopItem defense = new ShopItem("Defense Boost", "+5 Defense", 8, 5);
+        ShopItem fireRate = new ShopItem("Fire Rate Boost", "+.02 Fire Rate", 12, 20);
+        ShopItem bulletSpeed = new ShopItem("Bullet Speed Boost", "+1 Bullet Speed", 18, 1);
         ShopItem gemMultiplier = new ShopItem("Gem Multiplier", "20% Extra Gems", 20, 1.2);
 
         for (int i = 0; i < 3; i++) {
@@ -172,7 +172,7 @@ public class Shop {
                 break;
             case "Max Health Boost":
                 player.maxHealth += (int) item.upgradeValue;
-                player.health += (int) item.upgradeValue / 2;
+                player.health += (int) item.upgradeValue;
                 break;
             case "Damage Upgrade":
                 weapon.gunDamage += (int) item.upgradeValue;

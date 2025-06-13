@@ -554,7 +554,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener, Mo
                         enemyTrack = 60;
                         break;
                     case 20:
-                        enemyTrack = 73;
+                        enemyTrack = 83;
                         break;
                     default:
                         enemyTrack = (int) (1.947 * numTimes + 1.05);
